@@ -1,0 +1,22 @@
+/* ── squircle-radius() ────────────────────────────────────────
+ * Computes the visually-corrected border-radius for use with
+ * corner-shape: superellipse(). A superellipse corner appears
+ * tighter than a circular arc at the same radius, so the radius
+ * must be scaled up to preserve the intended visual size.
+ *
+ * --radius       The target border-radius (any <length>).
+ * --squircle-amt The superellipse exponent passed to corner-shape.
+ *
+ * Parameters are untyped to preserve standard CSS resolution of
+ * relative units (em, rem, etc.) — they resolve in the context
+ * where the function result is applied, not at call time.
+ *
+ * Usage:
+ *   border-radius: squircle-radius(1rem, 1.5);
+ *   corner-shape: superellipse(1.5);
+ * ──────────────────────────────────────────────────────────── */
+@function squircle-radius(--radius, --squircle-amt) {
+  result: calc(
+    var(--radius) * (1 - pow(2, -0.5)) / (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt))))
+  );
+}

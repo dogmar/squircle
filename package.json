@@ -22,6 +22,7 @@
   "type": "module",
   "exports": {
     "./squircle.css": "./dist/squircle.css",
+    "./squircle-radius.css": "./dist/squircle-radius.css",
     "./merge": {
       "types": "./dist/merge.d.mts",
       "import": "./dist/merge.mjs"
@@ -33,7 +34,7 @@
   },
   "scripts": {
     "dev": "vite docs",
-    "build": "vp pack && cp src/squircle.css dist/squircle.css",
+    "build": "vp pack && cp src/squircle.css dist/squircle.css && cp src/squircle-radius.css dist/squircle-radius.css",
     "build:site": "vite build docs",
     "prepare": "vp config",
     "lint": "vp lint",
