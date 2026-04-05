@@ -4,24 +4,24 @@ import {
   circleArcPoints,
   perceivedRadius,
   pointsToPath,
-} from "./math.mjs";
+} from "./math.ts";
 
 // ── Shared controls ──
 
-const radiusSlider = document.getElementById("radius-slider");
-const exponentSlider = document.getElementById("exponent-slider");
-const correctionToggle = document.getElementById("correction-toggle");
-const toggleTrack = document.getElementById("toggle-track");
-const toggleKnob = document.getElementById("toggle-knob");
-const correctionStatus = document.getElementById("correction-status");
-const radiusValue = document.getElementById("radius-value");
-const exponentValue = document.getElementById("exponent-value");
+const radiusSlider = document.getElementById("radius-slider") as HTMLInputElement;
+const exponentSlider = document.getElementById("exponent-slider") as HTMLInputElement;
+const correctionToggle = document.getElementById("correction-toggle")!;
+const toggleTrack = document.getElementById("toggle-track")!;
+const toggleKnob = document.getElementById("toggle-knob")!;
+const correctionStatus = document.getElementById("correction-status")!;
+const radiusValue = document.getElementById("radius-value")!;
+const exponentValue = document.getElementById("exponent-value")!;
 
 let correctionOn = true;
 
 correctionToggle.addEventListener("click", () => {
   correctionOn = !correctionOn;
-  correctionToggle.setAttribute("aria-checked", correctionOn);
+  correctionToggle.setAttribute("aria-checked", String(correctionOn));
   toggleTrack.className = correctionOn
     ? "w-11 h-6 bg-indigo-600 rounded-full relative transition-colors"
     : "w-11 h-6 bg-zinc-700 rounded-full relative transition-colors";
@@ -36,12 +36,12 @@ exponentSlider.addEventListener("input", update);
 
 // ── Section 1: Overlay Comparison ──
 
-const circleBox = document.getElementById("overlay-box-circle");
-const squircleBox = document.getElementById("overlay-box-squircle");
-const readoutCircleR = document.getElementById("readout-circle-r");
-const readoutSquircleR = document.getElementById("readout-squircle-r");
+const circleBox = document.getElementById("overlay-box-circle")!;
+const squircleBox = document.getElementById("overlay-box-squircle")!;
+const readoutCircleR = document.getElementById("readout-circle-r")!;
+const readoutSquircleR = document.getElementById("readout-squircle-r")!;
 
-function updateOverlay(r, cssN, mathN) {
+function updateOverlay(r: number, cssN: number, mathN: number): void {
   const squircleR = correctionOn ? correctedRadius(r, mathN) : r;
 
   circleBox.style.borderTopRightRadius = `${r}px`;
@@ -52,13 +52,13 @@ function updateOverlay(r, cssN, mathN) {
   correctionStatus.className = correctionOn
     ? "text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded"
     : "text-xs text-red-400 bg-red-400/10 px-2 py-0.5 rounded";
-  readoutCircleR.textContent = r;
+  readoutCircleR.textContent = String(r);
   readoutSquircleR.textContent = squircleR.toFixed(1);
 }
 
 // ── Section 2: Interactive Math Explorer ──
 
-const svgEl = document.getElementById("math-svg");
+const svgEl = document.getElementById("math-svg")!;
 const NS = "http://www.w3.org/2000/svg";
 
 // Fixed square — the box whose corner we're rounding
@@ -68,10 +68,10 @@ const cornerX = PAD + BOX;
 const cornerY = PAD;
 
 const boxRect = document.createElementNS(NS, "rect");
-boxRect.setAttribute("x", PAD);
-boxRect.setAttribute("y", PAD);
-boxRect.setAttribute("width", BOX);
-boxRect.setAttribute("height", BOX);
+boxRect.setAttribute("x", String(PAD));
+boxRect.setAttribute("y", String(PAD));
+boxRect.setAttribute("width", String(BOX));
+boxRect.setAttribute("height", String(BOX));
 boxRect.setAttribute("fill", "none");
 boxRect.setAttribute("stroke", "#3f3f46");
 boxRect.setAttribute("stroke-width", "1");
@@ -96,7 +96,7 @@ corrPath.setAttribute("stroke", "#10b981");
 corrPath.setAttribute("stroke-width", "2");
 svgEl.appendChild(corrPath);
 
-function makeDot(color) {
+function makeDot(color: string): SVGCircleElement {
   const dot = document.createElementNS(NS, "circle");
   dot.setAttribute("r", "3.5");
   dot.setAttribute("fill", color);
@@ -111,13 +111,13 @@ const corrDotTop = makeDot("#10b981");
 const corrDotRight = makeDot("#10b981");
 
 
-function arcToSvg(mathX, mathY, arcR) {
+function arcToSvg(mathX: number, mathY: number, arcR: number): { x: number; y: number } {
   return { x: cornerX - arcR + mathX, y: cornerY + arcR - mathY };
 }
 
 
 
-function updateMathSvg(r, cssN, mathN) {
+function updateMathSvg(r: number, cssN: number, mathN: number): void {
   const maxR = BOX;
   const clampedR = Math.min(r, maxR);
   const corrR = Math.min(correctedRadius(clampedR, mathN), maxR);
@@ -125,63 +125,63 @@ function updateMathSvg(r, cssN, mathN) {
   // Circle
   const cArc = circleArcPoints(clampedR).map((p) => arcToSvg(p.x, p.y, clampedR));
   circlePath.setAttribute("d",
-    `M ${cornerX} ${PAD + BOX} L ${cArc[0].x} ${cArc[0].y} ` +
+    `M ${cornerX} ${PAD + BOX} L ${cArc[0]!.x} ${cArc[0]!.y} ` +
     pointsToPath(cArc).slice(2) +
     ` L ${PAD} ${cornerY}`);
 
   // Superellipse at same radius
   const sArc = superellipsePoints(clampedR, mathN).map((p) => arcToSvg(p.x, p.y, clampedR));
   superPath.setAttribute("d",
-    `M ${cornerX} ${PAD + BOX} L ${sArc[0].x} ${sArc[0].y} ` +
+    `M ${cornerX} ${PAD + BOX} L ${sArc[0]!.x} ${sArc[0]!.y} ` +
     pointsToPath(sArc).slice(2) +
     ` L ${PAD} ${cornerY}`);
 
   // Corrected superellipse
   const corrArc = superellipsePoints(corrR, mathN).map((p) => arcToSvg(p.x, p.y, corrR));
   corrPath.setAttribute("d",
-    `M ${cornerX} ${PAD + BOX} L ${corrArc[0].x} ${corrArc[0].y} ` +
+    `M ${cornerX} ${PAD + BOX} L ${corrArc[0]!.x} ${corrArc[0]!.y} ` +
     pointsToPath(corrArc).slice(2) +
     ` L ${PAD} ${cornerY}`);
 
   // Junction dots
-  const cFirst = cArc[0], cLast = cArc[cArc.length - 1];
-  cDotRight.setAttribute("cx", cFirst.x); cDotRight.setAttribute("cy", cFirst.y);
-  cDotTop.setAttribute("cx", cLast.x);    cDotTop.setAttribute("cy", cLast.y);
+  const cFirst = cArc[0]!, cLast = cArc[cArc.length - 1]!;
+  cDotRight.setAttribute("cx", String(cFirst.x)); cDotRight.setAttribute("cy", String(cFirst.y));
+  cDotTop.setAttribute("cx", String(cLast.x));    cDotTop.setAttribute("cy", String(cLast.y));
 
-  const sFirst = sArc[0], sLast = sArc[sArc.length - 1];
-  sDotRight.setAttribute("cx", sFirst.x); sDotRight.setAttribute("cy", sFirst.y);
-  sDotTop.setAttribute("cx", sLast.x);    sDotTop.setAttribute("cy", sLast.y);
+  const sFirst = sArc[0]!, sLast = sArc[sArc.length - 1]!;
+  sDotRight.setAttribute("cx", String(sFirst.x)); sDotRight.setAttribute("cy", String(sFirst.y));
+  sDotTop.setAttribute("cx", String(sLast.x));    sDotTop.setAttribute("cy", String(sLast.y));
 
-  const corrFirst = corrArc[0], corrLast = corrArc[corrArc.length - 1];
-  corrDotRight.setAttribute("cx", corrFirst.x); corrDotRight.setAttribute("cy", corrFirst.y);
-  corrDotTop.setAttribute("cx", corrLast.x);    corrDotTop.setAttribute("cy", corrLast.y);
+  const corrFirst = corrArc[0]!, corrLast = corrArc[corrArc.length - 1]!;
+  corrDotRight.setAttribute("cx", String(corrFirst.x)); corrDotRight.setAttribute("cy", String(corrFirst.y));
+  corrDotTop.setAttribute("cx", String(corrLast.x));    corrDotTop.setAttribute("cy", String(corrLast.y));
 
   // Readouts
-  document.getElementById("formula-n").textContent = mathN.toFixed(1);
-  document.getElementById("formula-r").textContent = r;
-  document.getElementById("formula-result").textContent = correctedRadius(r, mathN).toFixed(1);
+  document.getElementById("formula-n")!.textContent = mathN.toFixed(1);
+  document.getElementById("formula-r")!.textContent = String(r);
+  document.getElementById("formula-result")!.textContent = correctedRadius(r, mathN).toFixed(1);
 
   const prc = perceivedRadius(clampedR, clampedR, 2);
   const prs = perceivedRadius(clampedR, clampedR, mathN);
   const prCorr = perceivedRadius(clampedR, corrR, mathN);
 
-  document.getElementById("radius-circle").textContent = `${clampedR}px`;
-  document.getElementById("radius-superellipse").textContent = `${clampedR}px`;
-  document.getElementById("radius-corrected").textContent = `${corrR.toFixed(1)}px`;
+  document.getElementById("radius-circle")!.textContent = `${clampedR}px`;
+  document.getElementById("radius-superellipse")!.textContent = `${clampedR}px`;
+  document.getElementById("radius-corrected")!.textContent = `${corrR.toFixed(1)}px`;
 
-  document.getElementById("bevel-circle").textContent = `${prc.toFixed(1)}px`;
-  document.getElementById("bevel-superellipse").textContent = `${prs.toFixed(1)}px`;
-  document.getElementById("bevel-corrected").textContent = `${prCorr.toFixed(1)}px`;
+  document.getElementById("bevel-circle")!.textContent = `${prc.toFixed(1)}px`;
+  document.getElementById("bevel-superellipse")!.textContent = `${prs.toFixed(1)}px`;
+  document.getElementById("bevel-corrected")!.textContent = `${prCorr.toFixed(1)}px`;
 
-  const fmt = (v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}px`;
-  document.getElementById("diff-circle").textContent = fmt(prc - prc);
-  document.getElementById("diff-superellipse").textContent = fmt(prs - prc);
-  document.getElementById("diff-corrected").textContent = fmt(prCorr - prc);
+  const fmt = (v: number): string => `${v >= 0 ? "+" : ""}${v.toFixed(1)}px`;
+  document.getElementById("diff-circle")!.textContent = fmt(prc - prc);
+  document.getElementById("diff-superellipse")!.textContent = fmt(prs - prc);
+  document.getElementById("diff-corrected")!.textContent = fmt(prCorr - prc);
 }
 
 // ── Unified update ──
 
-function update() {
+function update(): void {
   const r = Number(radiusSlider.value);
   const cssN = Number(exponentSlider.value);
   const mathN = Math.pow(2, cssN);
