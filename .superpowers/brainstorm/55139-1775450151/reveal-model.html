@@ -1,0 +1,186 @@
+<h2>Reveal-Based Model</h2>
+<p class="subtitle">Define all content upfront, choreograph when parts appear</p>
+
+<div class="section">
+  <h3>Data Structure</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    <span style="color: #7c8aff">type</span> Slide = {<br />
+    &nbsp;&nbsp;<span style="color: #5c6370">// All content for this slide — defined upfront</span
+    ><br />
+    &nbsp;&nbsp;content: (<span style="color: #e5c07b">step</span>:
+    <span style="color: #e5c07b">number</span>) =&gt;
+    <span style="color: #e5c07b">React.ReactNode</span>;<br /><br />
+    &nbsp;&nbsp;<span style="color: #5c6370">// Graphic states per step within this slide</span
+    ><br />
+    &nbsp;&nbsp;steps: {<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;graphic?:
+    <span style="color: #e5c07b">Partial&lt;GraphicState&gt;</span>;<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;transition?: <span style="color: #e5c07b">TransitionConfig</span>;<br />
+    &nbsp;&nbsp;}[];<br />
+    };<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>The &lt;Reveal&gt; Component</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    <span style="color: #5c6370">// Shown when currentStep >= step</span><br />
+    <span style="color: #7c8aff">function</span> <span style="color: #61afef">Reveal</span>({ step,
+    children, ...motionProps }) {<br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">const</span> currentStep =
+    <span style="color: #61afef">useSlideStep</span>();<br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">if</span> (currentStep < step)
+    <span style="color: #7c8aff">return null</span>;<br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">return</span> (<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;motion.div</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initial=<span style="color: #d19a66"
+      >{{ opacity: 0, y: 8 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animate=<span style="color: #d19a66"
+      >{{ opacity: 1, y: 0 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #d19a66">{...motionProps}</span>
+    <span style="color: #5c6370">// override defaults</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{children}<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/motion.div&gt;</span><br />
+    &nbsp;&nbsp;);<br />
+    }<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>Example Slide</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    {<br />
+    &nbsp;&nbsp;content: (<span style="color: #e5c07b">step</span>) =&gt; (<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;h2&gt;</span
+    ><span style="color: #98c379">The Rounded Corner</span
+    ><span style="color: #e06c75">&lt;/h2&gt;</span><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Reveal</span> step=<span
+      style="color: #d19a66"
+      >{0}</span
+    ><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;p&gt;</span
+    ><span style="color: #98c379">CSS border-radius draws a simple circular arc.</span
+    ><span style="color: #e06c75">&lt;/p&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Reveal&gt;</span
+    ><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Reveal</span> step=<span
+      style="color: #d19a66"
+      >{1}</span
+    ><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;p&gt;</span
+    ><span style="color: #98c379">Notice the abrupt transition point where</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #98c379"
+      >the curve meets the straight edge.</span
+    ><span style="color: #e06c75">&lt;/p&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Reveal&gt;</span
+    ><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Reveal</span> step=<span
+      style="color: #d19a66"
+      >{2}</span
+    >
+    initial=<span style="color: #d19a66">{{ scale: 0.9 }}</span> animate=<span
+      style="color: #d19a66"
+      >{{ scale: 1 }}</span
+    ><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;div</span>
+    className=<span style="color: #98c379">"callout"</span><span style="color: #e06c75">&gt;</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #98c379"
+      >Arcs are segments of perfect circles — they can't</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #98c379"
+      >taper smoothly into a straight line.</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/div&gt;</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Reveal&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/&gt;</span><br />
+    &nbsp;&nbsp;),<br /><br />
+    &nbsp;&nbsp;<span style="color: #5c6370">// 3 steps → 3 graphic states</span><br />
+    &nbsp;&nbsp;steps: [<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ graphic: { showRounded: <span style="color: #d19a66">true</span> }
+    },<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ graphic: { showMeasurement: <span style="color: #d19a66">true</span> }
+    },<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ <span style="color: #5c6370">/* no graphic change */</span> },<br />
+    &nbsp;&nbsp;],<br />
+    }<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>Navigation</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+    <div
+      style="background: #1e293b; padding: 14px; border-radius: 8px; border-left: 3px solid #7c8aff"
+    >
+      <h4 style="color: #7c8aff; margin: 0 0 6px; font-size: 14px">Next (within slide)</h4>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8">
+        Increments step counter. New <code>&lt;Reveal&gt;</code> elements appear. Graphic animates
+        to step's state.
+      </p>
+    </div>
+    <div
+      style="background: #1e293b; padding: 14px; border-radius: 8px; border-left: 3px solid #c084fc"
+    >
+      <h4 style="color: #c084fc; margin: 0 0 6px; font-size: 14px">Next (last step)</h4>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8">
+        Advances to next slide. Content panel transitions out/in via <code>AnimatePresence</code>.
+      </p>
+    </div>
+    <div
+      style="background: #1e293b; padding: 14px; border-radius: 8px; border-left: 3px solid #fb923c"
+    >
+      <h4 style="color: #fb923c; margin: 0 0 6px; font-size: 14px">Back</h4>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8">
+        Decrements step (or goes to prev slide's last step). Graphic state replays to match.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Graphic State Across Slides</h3>
+  <p style="color: #94a3b8; font-size: 14px">
+    Graphic state carries forward between slides (as you requested). Each step's
+    <code>graphic</code> merges into the running state. Going backward replays all steps from 0 to
+    recompute the cumulative state.
+  </p>
+</div>

@@ -1,0 +1,218 @@
+<h2>Animate Component Model</h2>
+<p class="subtitle">&lt;Animate inStep outStep&gt; controls visibility lifecycle</p>
+
+<div class="section">
+  <h3>The Animate Component</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    <span style="color: #7c8aff">type</span> AnimateProps = {<br />
+    &nbsp;&nbsp;inStep: <span style="color: #e5c07b">number</span>;
+    <span style="color: #5c6370">// Appears at this step</span><br />
+    &nbsp;&nbsp;outStep?: <span style="color: #e5c07b">number</span>;
+    <span style="color: #5c6370">// Disappears at this step (omit = stays)</span><br />
+    &nbsp;&nbsp;children: <span style="color: #e5c07b">React.ReactNode</span>;<br />
+    &nbsp;&nbsp;<span style="color: #5c6370">// Optional Framer Motion overrides:</span><br />
+    &nbsp;&nbsp;initial?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 0, y: 8 }</span><br />
+    &nbsp;&nbsp;animate?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 1, y: 0 }</span><br />
+    &nbsp;&nbsp;exit?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 0, y: -8 }</span><br />
+    };<br /><br />
+    <span style="color: #5c6370">// Visible when: inStep &lt;= currentStep &lt; outStep</span><br />
+    <span style="color: #7c8aff">function</span> <span style="color: #61afef">Animate</span>({
+    inStep, outStep, children, ...motion }) {<br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">const</span> step =
+    <span style="color: #61afef">useSlideStep</span>();<br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">const</span> visible = step >= inStep && (outStep ==
+    <span style="color: #d19a66">null</span> || step < outStep);<br /><br />
+    &nbsp;&nbsp;<span style="color: #7c8aff">return</span> (<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;AnimatePresence&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{visible && (<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75"
+      >&lt;motion.div</span
+    >
+    key=<span style="color: #d19a66">{inStep}</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initial=<span style="color: #d19a66"
+      >{motion.initial ?? { opacity: 0, y: 8 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animate=<span style="color: #d19a66"
+      >{motion.animate ?? { opacity: 1, y: 0 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit=<span style="color: #d19a66"
+      >{motion.exit ?? { opacity: 0, y: -8 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">/&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)}<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/AnimatePresence&gt;</span><br />
+    &nbsp;&nbsp;);<br />
+    }<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>Example Slide</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    {<br />
+    &nbsp;&nbsp;content: (<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;h2&gt;</span
+    ><span style="color: #98c379">The Rounded Corner</span
+    ><span style="color: #e06c75">&lt;/h2&gt;</span><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5c6370"
+      >{/* Appears at step 0, stays forever */}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Animate</span> inStep=<span
+      style="color: #d19a66"
+      >{0}</span
+    ><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;p&gt;</span
+    ><span style="color: #98c379">CSS border-radius draws a circular arc.</span
+    ><span style="color: #e06c75">&lt;/p&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Animate&gt;</span
+    ><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5c6370"
+      >{/* Appears at step 1, exits at step 3 */}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Animate</span> inStep=<span
+      style="color: #d19a66"
+      >{1}</span
+    >
+    outStep=<span style="color: #d19a66">{3}</span><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;p&gt;</span
+    ><span style="color: #98c379">Notice the abrupt transition here.</span
+    ><span style="color: #e06c75">&lt;/p&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Animate&gt;</span
+    ><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5c6370"
+      >{/* Appears at step 2, custom animation */}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Animate</span> inStep=<span
+      style="color: #d19a66"
+      >{2}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initial=<span style="color: #d19a66"
+      >{{ opacity: 0, scale: 0.95 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animate=<span style="color: #d19a66"
+      >{{ opacity: 1, scale: 1 }}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;div</span>
+    className=<span style="color: #98c379">"callout"</span><span style="color: #e06c75">&gt;</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #98c379"
+      >This is because arcs are circular segments.</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/div&gt;</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Animate&gt;</span
+    ><br /><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5c6370"
+      >{/* Replaces the step-1 text at step 3 */}</span
+    ><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;Animate</span> inStep=<span
+      style="color: #d19a66"
+      >{3}</span
+    ><span style="color: #e06c75">&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;p&gt;</span
+    ><span style="color: #98c379">Can we do better? Enter the superellipse.</span
+    ><span style="color: #e06c75">&lt;/p&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/Animate&gt;</span><br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #e06c75">&lt;/&gt;</span><br />
+    &nbsp;&nbsp;),<br /><br />
+    &nbsp;&nbsp;steps: [<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ graphic: { showRounded: <span style="color: #d19a66">true</span> }
+    },<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ graphic: { showMeasurement: <span style="color: #d19a66">true</span> }
+    },<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{
+    <span style="color: #5c6370">/* text only — no graphic change */</span> },<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;{ graphic: { showSuperellipse:
+    <span style="color: #d19a66">true</span> } },<br />
+    &nbsp;&nbsp;],<br />
+    }<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>Visibility Timeline</h3>
+  <div
+    style="
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+    "
+  >
+    <table style="width: 100%; border-collapse: collapse; color: #cbd5e1">
+      <thead>
+        <tr style="border-bottom: 1px solid #334155">
+          <th style="text-align: left; padding: 8px; color: #94a3b8; font-size: 12px">Element</th>
+          <th style="text-align: center; padding: 8px; color: #94a3b8; font-size: 12px">Step 0</th>
+          <th style="text-align: center; padding: 8px; color: #94a3b8; font-size: 12px">Step 1</th>
+          <th style="text-align: center; padding: 8px; color: #94a3b8; font-size: 12px">Step 2</th>
+          <th style="text-align: center; padding: 8px; color: #94a3b8; font-size: 12px">Step 3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 8px; color: #e0e0e0">"CSS border-radius..."</td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; color: #e0e0e0">"Notice the abrupt..."</td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #ef4444">✕</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; color: #e0e0e0">Callout box</td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; color: #e0e0e0">"Can we do better?"</td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #475569">○</span></td>
+          <td style="text-align: center; padding: 8px"><span style="color: #34d399">●</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 12px; font-size: 11px; color: #64748b">
+      <span style="color: #34d399">● visible</span> &nbsp;
+      <span style="color: #475569">○ hidden</span> &nbsp;
+      <span style="color: #ef4444">✕ exited</span>
+    </div>
+  </div>
+</div>

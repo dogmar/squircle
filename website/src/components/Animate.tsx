@@ -1,14 +1,35 @@
 import { createContext, useContext } from "react";
 import { AnimatePresence, motion, type MotionProps } from "framer-motion";
 
-const SlideStepContext = createContext<number>(0);
+interface SlideContext {
+  step: number;
+  onAmountChange?: (amount: number) => void;
+}
 
-export function SlideStepProvider({ step, children }: { step: number; children: React.ReactNode }) {
-  return <SlideStepContext.Provider value={step}>{children}</SlideStepContext.Provider>;
+const SlideStepContext = createContext<SlideContext>({ step: 0 });
+
+export function SlideStepProvider({
+  step,
+  onAmountChange,
+  children,
+}: {
+  step: number;
+  onAmountChange?: (amount: number) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <SlideStepContext.Provider value={{ step, onAmountChange }}>
+      {children}
+    </SlideStepContext.Provider>
+  );
 }
 
 export function useSlideStep() {
-  return useContext(SlideStepContext);
+  return useContext(SlideStepContext).step;
+}
+
+export function useAmountControl() {
+  return useContext(SlideStepContext).onAmountChange;
 }
 
 export function Animate({

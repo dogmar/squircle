@@ -1,0 +1,300 @@
+<h2>Full Design: Guided Tour + Explorer</h2>
+<p class="subtitle">Complete architecture for the slideshow system</p>
+
+<div class="section">
+  <h3>1. Component Architecture</h3>
+  <div
+    style="
+      background: #0f172a;
+      padding: 24px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    "
+  >
+    <div style="color: #7c8aff; font-weight: bold; margin-bottom: 8px">Component Tree</div>
+    <div style="padding-left: 0">
+      <span style="color: #f8fafc">GuidedExplorer</span>
+      <span style="color: #5c6370">— replaces MathExplorer in index.astro</span><br />
+      <span style="padding-left: 20px">├─ <span style="color: #34d399">ExplorerGraphic</span></span>
+      <span style="color: #5c6370">— extracted SVG viz (left/top)</span><br />
+      <span style="padding-left: 40px"
+        >│ &nbsp;Uses <span style="color: #fb923c">motion.*</span> for animated SVG paths</span
+      ><br />
+      <span style="padding-left: 20px">├─ <span style="color: #c084fc">SlideContent</span></span>
+      <span style="color: #5c6370">— text panel (right/bottom)</span><br />
+      <span style="padding-left: 40px"
+        >│ &nbsp;Contains <span style="color: #fb923c">&lt;Animate&gt;</span> elements per slide
+        def</span
+      ><br />
+      <span style="padding-left: 20px">├─ <span style="color: #e5c07b">SlideControls</span></span>
+      <span style="color: #5c6370">— Back / Next buttons + step indicator</span><br />
+      <span style="padding-left: 20px">└─ <span style="color: #94a3b8">FreeExplorer</span></span>
+      <span style="color: #5c6370">— sliders + toggles (final state)</span><br />
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Data Types</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    <span style="color: #7c8aff">type</span> GraphicState = {<br />
+    &nbsp;&nbsp;showRounded: <span style="color: #e5c07b">boolean</span>;<br />
+    &nbsp;&nbsp;showSuperellipse: <span style="color: #e5c07b">boolean</span>;<br />
+    &nbsp;&nbsp;showCorrected: <span style="color: #e5c07b">boolean</span>;<br />
+    &nbsp;&nbsp;amount: <span style="color: #e5c07b">number</span>;<br />
+    &nbsp;&nbsp;showMeasurement: <span style="color: #e5c07b">boolean</span>;<br />
+    &nbsp;&nbsp;measureArc?:
+    <span style="color: #e5c07b">"rounded" | "superellipse" | "corrected"</span>;<br />
+    };<br /><br />
+
+    <span style="color: #7c8aff">type</span> Slide = {<br />
+    &nbsp;&nbsp;<span style="color: #5c6370"
+      >// React content — uses &lt;Animate&gt; for reveal control</span
+    ><br />
+    &nbsp;&nbsp;content: <span style="color: #e5c07b">React.ReactNode</span>;<br /><br />
+    &nbsp;&nbsp;<span style="color: #5c6370"
+      >// Graphic state at each step (partial merge into running state)</span
+    ><br />
+    &nbsp;&nbsp;steps: {<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;graphic?:
+    <span style="color: #e5c07b">Partial&lt;GraphicState&gt;</span>;<br />
+    &nbsp;&nbsp;&nbsp;&nbsp;transition?: { duration?: <span style="color: #e5c07b">number</span>;
+    ease?: <span style="color: #e5c07b">string</span> };<br />
+    &nbsp;&nbsp;}[];<br />
+    };<br /><br />
+
+    <span style="color: #7c8aff">type</span> AnimateProps = {<br />
+    &nbsp;&nbsp;inStep: <span style="color: #e5c07b">number</span>;<br />
+    &nbsp;&nbsp;outStep?: <span style="color: #e5c07b">number</span>;<br />
+    &nbsp;&nbsp;children: <span style="color: #e5c07b">React.ReactNode</span>;<br />
+    &nbsp;&nbsp;initial?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 0, y: 8 }</span><br />
+    &nbsp;&nbsp;animate?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 1, y: 0 }</span><br />
+    &nbsp;&nbsp;exit?: <span style="color: #e5c07b">MotionProps</span>;
+    <span style="color: #5c6370">// default: { opacity: 0, y: -8 }</span><br />
+    };<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. State Management</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #7c8aff; margin: 0 0 8px; font-size: 14px">Navigation State</h4>
+      <div style="font-family: monospace; font-size: 12px; color: #94a3b8; line-height: 1.8">
+        slideIndex: <span style="color: #e0e0e0">number</span><br />
+        stepIndex: <span style="color: #e0e0e0">number</span><br />
+        mode: <span style="color: #e0e0e0">"tour" | "explore"</span>
+      </div>
+    </div>
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #34d399; margin: 0 0 8px; font-size: 14px">Computed Graphic State</h4>
+      <div style="font-size: 13px; color: #94a3b8; line-height: 1.6">
+        Replay all slides[0..slideIndex].steps[0..stepIndex] from initial state, merging each step's
+        <code>graphic</code> partial. Result drives SVG rendering.
+      </div>
+    </div>
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #fb923c; margin: 0 0 8px; font-size: 14px">Step Context</h4>
+      <div style="font-size: 13px; color: #94a3b8; line-height: 1.6">
+        <code>useSlideStep()</code> hook via React context. Returns current
+        <code>stepIndex</code> within the active slide. <code>&lt;Animate&gt;</code> components read
+        this.
+      </div>
+    </div>
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #c084fc; margin: 0 0 8px; font-size: 14px">Transition to Free Explore</h4>
+      <div style="font-size: 13px; color: #94a3b8; line-height: 1.6">
+        After last step of last slide, "Next" sets <code>mode: "explore"</code>. Sliders/toggles
+        appear. Graphic state becomes user-controlled.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. ExplorerGraphic (SVG Component)</h3>
+  <div style="font-size: 14px; color: #94a3b8; line-height: 1.6">
+    <p>
+      Extracted from current MathExplorer. Receives <code>GraphicState</code> as props. All SVG
+      elements use <code>motion.path</code>, <code>motion.line</code>, <code>motion.g</code> for
+      smooth transitions:
+    </p>
+    <ul style="margin-top: 8px; padding-left: 20px">
+      <li>
+        <strong>Paths</strong>: <code>motion.path</code> with animated <code>d</code> attribute
+        (Framer Motion interpolates SVG path data)
+      </li>
+      <li>
+        <strong>Visibility</strong>: <code>motion.g</code> with animated <code>opacity</code> (0 or
+        1) for show/hide
+      </li>
+      <li>
+        <strong>Measurement lines</strong>: <code>motion.line</code> with animated coordinates
+      </li>
+      <li>
+        <strong>Amount changes</strong>: Since <code>amount</code> drives the
+        <code>useMemo</code> computation, we animate it as a number using Framer Motion's
+        <code>useMotionValue</code> + <code>useTransform</code>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <h3>5. Layout</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #7c8aff; margin: 0 0 8px; font-size: 14px">Desktop (≥768px)</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 120px">
+        <div
+          style="
+            background: #0f172a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #34d399;
+            font-size: 12px;
+            font-family: monospace;
+          "
+        >
+          ExplorerGraphic
+        </div>
+        <div
+          style="
+            background: #0f172a;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #c084fc;
+            font-size: 12px;
+            font-family: monospace;
+            gap: 4px;
+          "
+        >
+          <span>SlideContent</span>
+          <span style="color: #e5c07b; font-size: 10px">SlideControls</span>
+        </div>
+      </div>
+    </div>
+    <div style="background: #1e293b; padding: 16px; border-radius: 8px">
+      <h4 style="color: #7c8aff; margin: 0 0 8px; font-size: 14px">Mobile (&lt;768px)</h4>
+      <div style="display: grid; grid-template-rows: 1fr 1fr; gap: 8px; height: 120px">
+        <div
+          style="
+            background: #0f172a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #34d399;
+            font-size: 12px;
+            font-family: monospace;
+          "
+        >
+          ExplorerGraphic
+        </div>
+        <div
+          style="
+            background: #0f172a;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #c084fc;
+            font-size: 12px;
+            font-family: monospace;
+            gap: 4px;
+          "
+        >
+          <span>SlideContent</span>
+          <span style="color: #e5c07b; font-size: 10px">SlideControls</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>6. File Structure</h3>
+  <div
+    style="
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    "
+  >
+    website/src/components/<br />
+    &nbsp;&nbsp;├─ <span style="color: #f8fafc">GuidedExplorer.tsx</span>
+    <span style="color: #5c6370">— orchestrator (state, nav, layout)</span><br />
+    &nbsp;&nbsp;├─ <span style="color: #34d399">ExplorerGraphic.tsx</span>
+    <span style="color: #5c6370">— animated SVG (extracted from MathExplorer)</span><br />
+    &nbsp;&nbsp;├─ <span style="color: #fb923c">Animate.tsx</span>
+    <span style="color: #5c6370">— &lt;Animate inStep outStep&gt; component</span><br />
+    &nbsp;&nbsp;├─ <span style="color: #e5c07b">SlideControls.tsx</span>
+    <span style="color: #5c6370">— Back/Next buttons + step dots</span><br />
+    &nbsp;&nbsp;├─ <span style="color: #c084fc">slides.tsx</span>
+    <span style="color: #5c6370">— slide definitions (content + steps)</span><br />
+    &nbsp;&nbsp;└─ <span style="color: #94a3b8">FreeExplorer.tsx</span>
+    <span style="color: #5c6370">— sliders/toggles for free mode</span><br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>7. Animating the Amount (K value)</h3>
+  <div style="font-size: 14px; color: #94a3b8; line-height: 1.6">
+    <p>
+      The K value drives all math computations via <code>useMemo</code>. To animate it smoothly:
+    </p>
+    <div
+      style="
+        background: #1a1a2e;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12.5px;
+        line-height: 1.7;
+        color: #e0e0e0;
+        margin-top: 8px;
+      "
+    >
+      <span style="color: #5c6370">// Use Framer Motion's useSpring or animate()</span><br />
+      <span style="color: #5c6370">// to interpolate amount over time,</span><br />
+      <span style="color: #5c6370">// triggering React re-renders at each frame.</span><br /><br />
+      <span style="color: #7c8aff">const</span> [amount, setAmount] =
+      <span style="color: #61afef">useState</span>(<span style="color: #d19a66">1.5</span>);<br />
+      <span style="color: #7c8aff">const</span> spring =
+      <span style="color: #61afef">useSpring</span>(amount, { duration:
+      <span style="color: #d19a66">1500</span> });<br /><br />
+      <span style="color: #5c6370">// spring.get() returns interpolated value</span><br />
+      <span style="color: #5c6370">// Subscribe to changes → recompute SVG paths</span><br />
+    </div>
+    <p style="margin-top: 8px">
+      This gives smooth K-value sweeps while keeping the existing pure-math computation pipeline
+      intact.
+    </p>
+  </div>
+</div>

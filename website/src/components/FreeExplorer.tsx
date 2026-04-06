@@ -8,7 +8,8 @@ interface FreeExplorerProps {
 }
 
 export default function FreeExplorer({ graphicState, onGraphicStateChange }: FreeExplorerProps) {
-  const { amount, showRounded, showSuperellipse, showCorrected } = graphicState;
+  const { amount, showRounded, showSuperellipse, correctionAmount, showFill, showStroke } =
+    graphicState;
   const [amountText, setAmountText] = useState(String(amount));
 
   const stats = useMemo(() => {
@@ -94,10 +95,27 @@ export default function FreeExplorer({ graphicState, onGraphicStateChange }: Fre
         <label className="flex cursor-pointer items-center gap-2 text-sm">
           <input
             type="checkbox"
-            checked={showCorrected}
-            onChange={(e) => onGraphicStateChange({ showCorrected: e.target.checked })}
+            checked={correctionAmount > 0}
+            onChange={(e) => onGraphicStateChange({ correctionAmount: e.target.checked ? 1 : 0 })}
           />
-          <span style={{ color: "var(--color-squircle-adjusted-border)" }}>Corrected</span>
+          <span style={{ color: "var(--color-adjusted-border)" }}>Corrected</span>
+        </label>
+        <span className="mx-1 text-zinc-700">|</span>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={showFill}
+            onChange={(e) => onGraphicStateChange({ showFill: e.target.checked })}
+          />
+          <span className="text-zinc-400">Fill</span>
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={showStroke}
+            onChange={(e) => onGraphicStateChange({ showStroke: e.target.checked })}
+          />
+          <span className="text-zinc-400">Stroke</span>
         </label>
       </div>
 
@@ -137,7 +155,7 @@ export default function FreeExplorer({ graphicState, onGraphicStateChange }: Fre
               <td className="py-1">{formatDiff(superDiff)}</td>
             </tr>
             <tr>
-              <td className="py-1 pr-4" style={{ color: "var(--color-squircle-adjusted-border)" }}>
+              <td className="py-1 pr-4" style={{ color: "var(--color-adjusted-border)" }}>
                 Corrected
               </td>
               <td className="py-1 pr-4">{corrR.toFixed(1)}px</td>

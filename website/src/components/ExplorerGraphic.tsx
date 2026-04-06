@@ -1,14 +1,24 @@
-import { useId, useMemo } from "react";
+import { useId, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import { circleArcPoints, correctedRadius, pointsToPath, superellipsePoints } from "../math";
+import {
+  circleArcPoints,
+  correctedRadius,
+  perceivedRadius,
+  pointsToPath,
+  superellipsePoints,
+} from "../math";
 
 export interface GraphicState {
   showRounded: boolean;
   showSuperellipse: boolean;
-  showCorrected: boolean;
+  correctionAmount: number; // 0 = uncorrected superellipse, 1 = fully corrected
   amount: number;
+  showRefLine: boolean;
   showMeasurement: boolean;
   measureArc?: "rounded" | "superellipse" | "corrected";
+  showFill: boolean;
+  showStroke: boolean;
+  zoom: number;
 }
 
 const BOX = 180;
@@ -37,49 +47,59 @@ function buildCurvePath(points: { x: number; y: number }[]) {
 export default function ExplorerGraphic({
   showRounded,
   showSuperellipse,
-  showCorrected,
   amount,
+  showRefLine,
   showMeasurement,
   measureArc,
+  correctionAmount,
+  showFill,
+  showStroke,
+  zoom,
 }: GraphicState) {
   const id = useId();
   const clipCircle = `${id}-clip-circle`;
   const clipSuper = `${id}-clip-super`;
-  const clipCorr = `${id}-clip-corr`;
+
+  // Track discrete measurement state changes to decide when to animate vs instant update
+  const measureKey = `${showRefLine}-${showMeasurement}-${measureArc}`;
+  const prevMeasureKey = useRef(measureKey);
+  const isMorphing = prevMeasureKey.current !== measureKey;
+  prevMeasureKey.current = measureKey;
 
   const data = useMemo(() => {
     const mathN = Math.pow(2, amount);
-    const corrFactor = correctedRadius(1, mathN);
-    const largestFactor = Math.max(1, corrFactor);
-    const r = BOX / largestFactor;
+    const r = BOX * zoom;
     const corrR = correctedRadius(r, mathN);
+
+    // Interpolated superellipse radius based on correction amount
+    const superR = r + correctionAmount * (corrR - r);
 
     // Circle arc points
     const circleRaw = circleArcPoints(r);
     const circleSvg = circleRaw.map((p) => arcToSvg(p.x, p.y, r));
 
-    // Superellipse points
-    const superRaw = superellipsePoints(r, mathN);
-    const superSvg = superRaw.map((p) => arcToSvg(p.x, p.y, r));
-
-    // Corrected superellipse points
-    const corrRaw = superellipsePoints(corrR, mathN);
-    const corrSvg = corrRaw.map((p) => arcToSvg(p.x, p.y, corrR));
+    // Superellipse points (interpolated between uncorrected and corrected)
+    const superRaw = superellipsePoints(superR, mathN);
+    const superSvg = superRaw.map((p) => arcToSvg(p.x, p.y, superR));
 
     // Paths
     const circlePath = buildCurvePath(circleSvg);
     const superPath = buildCurvePath(superSvg);
-    const corrPath = buildCurvePath(corrSvg);
 
     // Interior clip: same shape as the curve path, closed
     const circleClip = circlePath + " Z";
     const superClip = superPath + " Z";
-    const corrClip = corrPath + " Z";
+
+    // Determine z-order: superellipse above circle when its perceived radius
+    // is smaller (curve closer to corner), below when larger (curve past circle)
+    const circlePerceived = perceivedRadius(r, r, 2);
+    const superPerceived = perceivedRadius(r, superR, mathN);
+    const superAboveCircle = superPerceived <= circlePerceived;
 
     // Measurement line data
     let measure: { endX: number; endY: number; ratio: number; cssVar: string } | null = null;
     if (measureArc) {
-      const arcR = measureArc === "corrected" ? corrR : r;
+      const arcR = measureArc === "corrected" ? superR : r;
       const n = measureArc === "rounded" ? 2 : mathN;
       const d = arcR * (1 - Math.pow(2, -1 / n));
       const endX = cornerX - d;
@@ -91,23 +111,21 @@ export default function ExplorerGraphic({
           ? "--color-rounded-border"
           : measureArc === "superellipse"
             ? "--color-squircle-border"
-            : "--color-squircle-adjusted-border";
+            : "--color-adjusted-border";
       measure = { endX, endY, ratio, cssVar };
     }
 
     return {
       mathN,
       r,
-      corrR,
+      superR,
       circleSvg,
       superSvg,
-      corrSvg,
       circlePath,
       superPath,
-      corrPath,
       circleClip,
       superClip,
-      corrClip,
+      superAboveCircle,
       measure,
       // Reference line: circle arc center outward at 45° toward corner (length = r)
       refLine: {
@@ -117,18 +135,16 @@ export default function ExplorerGraphic({
         y2: cornerY + r - r / Math.SQRT2,
       },
     };
-  }, [amount, measureArc]);
+  }, [amount, measureArc, zoom, correctionAmount]);
 
   const {
     circleSvg,
     superSvg,
-    corrSvg,
     circlePath,
     superPath,
-    corrPath,
     circleClip,
     superClip,
-    corrClip,
+    superAboveCircle,
     measure,
     refLine,
   } = data;
@@ -145,217 +161,186 @@ export default function ExplorerGraphic({
         <clipPath id={clipSuper}>
           <path d={superClip} />
         </clipPath>
-        <clipPath id={clipCorr}>
-          <path d={corrClip} />
-        </clipPath>
       </defs>
 
-      {/* Circle arc — painted first (bottom), serifs fully inward, edge-aligned outward */}
-      <motion.g animate={{ opacity: showRounded ? 1 : 0 }} transition={{ duration: 0.4 }}>
-        <path
-          d={circlePath}
-          fill="none"
-          style={{ stroke: "var(--color-rounded-border)" }}
-          strokeWidth={3}
-          strokeDasharray={DASH}
-          strokeDashoffset={0}
-          clipPath={`url(#${clipCircle})`}
-        />
-        {/* Right junction: inward, inner stroke edge at junction */}
-        <line
-          x1={circleSvg[0]!.x}
-          y1={circleSvg[0]!.y - SERIF_W / 2}
-          x2={circleSvg[0]!.x - SERIF_LEN}
-          y2={circleSvg[0]!.y - SERIF_W / 2}
-          style={{ stroke: "var(--color-rounded-border)" }}
-          strokeWidth={SERIF_W}
-        />
-        {/* Top junction: inward, inner stroke edge at junction */}
-        <line
-          x1={circleSvg[circleSvg.length - 1]!.x + SERIF_W / 2}
-          y1={circleSvg[circleSvg.length - 1]!.y}
-          x2={circleSvg[circleSvg.length - 1]!.x + SERIF_W / 2}
-          y2={circleSvg[circleSvg.length - 1]!.y + SERIF_LEN}
-          style={{ stroke: "var(--color-rounded-border)" }}
-          strokeWidth={SERIF_W}
-        />
-      </motion.g>
+      {/* Superellipse and circle — z-order swaps when superellipse crosses circle */}
+      {(() => {
+        const isCorrepting = correctionAmount > 0;
+        const superFillColor = isCorrepting
+          ? "var(--color-adjusted-fill)"
+          : "var(--color-squircle-fill)";
+        const superStrokeColor = isCorrepting
+          ? "var(--color-adjusted-border)"
+          : "var(--color-squircle-border)";
 
-      {/* Superellipse — painted second, serifs fully outward, edge-aligned inward */}
-      <motion.g animate={{ opacity: showSuperellipse ? 1 : 0 }} transition={{ duration: 0.4 }}>
-        <path
-          d={superPath}
-          fill="none"
-          style={{ stroke: "var(--color-squircle-border)" }}
-          strokeWidth={3}
-          strokeDasharray={DASH}
-          strokeDashoffset={-DASH_PERIOD / 3}
-          clipPath={`url(#${clipSuper})`}
-        />
-        {/* Right junction: outward, inner stroke edge at junction */}
-        <line
-          x1={superSvg[0]!.x}
-          y1={superSvg[0]!.y - SERIF_W / 2}
-          x2={superSvg[0]!.x + SERIF_LEN}
-          y2={superSvg[0]!.y - SERIF_W / 2}
-          style={{ stroke: "var(--color-squircle-border)" }}
-          strokeWidth={SERIF_W}
-        />
-        {/* Top junction: outward, inner stroke edge at junction */}
-        <line
-          x1={superSvg[superSvg.length - 1]!.x + SERIF_W / 2}
-          y1={superSvg[superSvg.length - 1]!.y}
-          x2={superSvg[superSvg.length - 1]!.x + SERIF_W / 2}
-          y2={superSvg[superSvg.length - 1]!.y - SERIF_LEN}
-          style={{ stroke: "var(--color-squircle-border)" }}
-          strokeWidth={SERIF_W}
-        />
-      </motion.g>
+        const superellipseGroup = (
+          <motion.g
+            key="super"
+            animate={{ opacity: showSuperellipse ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <g style={{ color: superStrokeColor, transition: "color 0.5s" }}>
+              {showFill && (
+                <path
+                  d={`${superPath} L ${PAD} ${PAD + BOX} Z`}
+                  style={{ fill: superFillColor, transition: "fill 0.5s" }}
+                  stroke="none"
+                />
+              )}
+              {showStroke && (
+                <>
+                  <path
+                    d={superPath}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                    strokeDasharray={DASH}
+                    strokeDashoffset={-DASH_PERIOD / 3}
+                    clipPath={`url(#${clipSuper})`}
+                  />
+                  <line
+                    x1={superSvg[0]!.x}
+                    y1={superSvg[0]!.y - SERIF_W / 2}
+                    x2={superSvg[0]!.x + SERIF_LEN}
+                    y2={superSvg[0]!.y - SERIF_W / 2}
+                    stroke="currentColor"
+                    strokeWidth={SERIF_W}
+                  />
+                  <line
+                    x1={superSvg[superSvg.length - 1]!.x + SERIF_W / 2}
+                    y1={superSvg[superSvg.length - 1]!.y}
+                    x2={superSvg[superSvg.length - 1]!.x + SERIF_W / 2}
+                    y2={superSvg[superSvg.length - 1]!.y - SERIF_LEN}
+                    stroke="currentColor"
+                    strokeWidth={SERIF_W}
+                  />
+                </>
+              )}
+            </g>
+          </motion.g>
+        );
 
-      {/* Corrected superellipse — painted last (top), serifs centered */}
-      <motion.g animate={{ opacity: showCorrected ? 1 : 0 }} transition={{ duration: 0.4 }}>
-        <path
-          d={corrPath}
-          fill="none"
-          style={{ stroke: "var(--color-squircle-adjusted-border)" }}
-          strokeWidth={3}
-          strokeDasharray={DASH}
-          strokeDashoffset={(-2 * DASH_PERIOD) / 3}
-          clipPath={`url(#${clipCorr})`}
-        />
-        {/* Right junction: centered, inner stroke edge at junction */}
-        <line
-          x1={corrSvg[0]!.x + SERIF_LEN / 2}
-          y1={corrSvg[0]!.y - SERIF_W / 2}
-          x2={corrSvg[0]!.x - SERIF_LEN / 2}
-          y2={corrSvg[0]!.y - SERIF_W / 2}
-          style={{ stroke: "var(--color-squircle-adjusted-border)" }}
-          strokeWidth={SERIF_W}
-        />
-        {/* Black end caps on right serif */}
-        <line
-          x1={corrSvg[0]!.x + SERIF_LEN / 2}
-          y1={corrSvg[0]!.y - SERIF_W / 2 - 4}
-          x2={corrSvg[0]!.x + SERIF_LEN / 2}
-          y2={corrSvg[0]!.y - SERIF_W / 2 + 4}
-          stroke="black"
-          strokeWidth={1}
-        />
-        <line
-          x1={corrSvg[0]!.x - SERIF_LEN / 2}
-          y1={corrSvg[0]!.y - SERIF_W / 2 - 4}
-          x2={corrSvg[0]!.x - SERIF_LEN / 2}
-          y2={corrSvg[0]!.y - SERIF_W / 2 + 4}
-          stroke="black"
-          strokeWidth={1}
-        />
-        {/* Top junction: centered, inner stroke edge at junction */}
-        <line
-          x1={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2}
-          y1={corrSvg[corrSvg.length - 1]!.y - SERIF_LEN / 2}
-          x2={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2}
-          y2={corrSvg[corrSvg.length - 1]!.y + SERIF_LEN / 2}
-          style={{ stroke: "var(--color-squircle-adjusted-border)" }}
-          strokeWidth={SERIF_W}
-        />
-        {/* Black end caps on top serif */}
-        <line
-          x1={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2 - 4}
-          y1={corrSvg[corrSvg.length - 1]!.y - SERIF_LEN / 2}
-          x2={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2 + 4}
-          y2={corrSvg[corrSvg.length - 1]!.y - SERIF_LEN / 2}
-          stroke="black"
-          strokeWidth={1}
-        />
-        <line
-          x1={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2 - 4}
-          y1={corrSvg[corrSvg.length - 1]!.y + SERIF_LEN / 2}
-          x2={corrSvg[corrSvg.length - 1]!.x + SERIF_W / 2 + 4}
-          y2={corrSvg[corrSvg.length - 1]!.y + SERIF_LEN / 2}
-          stroke="black"
-          strokeWidth={1}
-        />
-      </motion.g>
+        const circleGroup = (
+          <motion.g
+            key="circle"
+            animate={{ opacity: showRounded ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {showFill && (
+              <path
+                d={`${circlePath} L ${PAD} ${PAD + BOX} Z`}
+                style={{ fill: "var(--color-rounded-fill)" }}
+                stroke="none"
+              />
+            )}
+            {showStroke && (
+              <>
+                <path
+                  d={circlePath}
+                  fill="none"
+                  style={{ stroke: "var(--color-rounded-border)" }}
+                  strokeWidth={3}
+                  strokeDasharray={DASH}
+                  strokeDashoffset={0}
+                  clipPath={`url(#${clipCircle})`}
+                />
+                <line
+                  x1={circleSvg[0]!.x}
+                  y1={circleSvg[0]!.y - SERIF_W / 2}
+                  x2={circleSvg[0]!.x - SERIF_LEN}
+                  y2={circleSvg[0]!.y - SERIF_W / 2}
+                  style={{ stroke: "var(--color-rounded-border)" }}
+                  strokeWidth={SERIF_W}
+                />
+                <line
+                  x1={circleSvg[circleSvg.length - 1]!.x + SERIF_W / 2}
+                  y1={circleSvg[circleSvg.length - 1]!.y}
+                  x2={circleSvg[circleSvg.length - 1]!.x + SERIF_W / 2}
+                  y2={circleSvg[circleSvg.length - 1]!.y + SERIF_LEN}
+                  style={{ stroke: "var(--color-rounded-border)" }}
+                  strokeWidth={SERIF_W}
+                />
+              </>
+            )}
+          </motion.g>
+        );
 
-      {/* Measurement line */}
-      <motion.g
-        animate={{ opacity: showMeasurement && measure ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        {measure && (
+        return superAboveCircle ? (
           <>
-            {/* Diagonal line from corner to curve apex */}
-            <line
-              x1={cornerX}
-              y1={cornerY}
-              x2={measure.endX}
-              y2={measure.endY}
-              style={{ stroke: `var(${measure.cssVar})` }}
-              strokeWidth={0.75}
-              strokeDasharray="1 4"
-              strokeLinecap="round"
-            />
-            {/* Perpendicular serif at the curve end */}
-            <line
-              x1={measure.endX - 24 / Math.SQRT2}
-              y1={measure.endY - 24 / Math.SQRT2}
-              x2={measure.endX + 24 / Math.SQRT2}
-              y2={measure.endY + 24 / Math.SQRT2}
-              style={{ stroke: `var(${measure.cssVar})` }}
-              strokeWidth={0.75}
-            />
-            {/* Ratio label */}
-            {(() => {
-              const midX = (cornerX + measure.endX) / 2;
-              const midY = (cornerY + measure.endY) / 2;
-              const svgW = PAD * 2 + BOX;
-              // Place label upper-right of line; flip to lower-left if near edge
-              const nearTop = midY - 6 < 12;
-              const nearRight = midX + 6 + 24 > svgW;
-              const lx = nearRight ? midX - 28 : midX + 6;
-              const ly = nearTop ? midY + 12 : midY - 6;
-              return (
-                <text x={lx} y={ly} fill="currentColor" fontSize={9} className="text-zinc-400">
-                  {measure.ratio.toFixed(2)}
-                </text>
-              );
-            })()}
+            {circleGroup}
+            {superellipseGroup}
           </>
-        )}
-      </motion.g>
+        ) : (
+          <>
+            {superellipseGroup}
+            {circleGroup}
+          </>
+        );
+      })()}
 
-      {/* Reference line: circle center to bottom-right edge, labeled "1" */}
-      <g>
-        <line
-          x1={refLine.x1}
-          y1={refLine.y1}
-          x2={refLine.x2}
-          y2={refLine.y2}
-          style={{ stroke: "var(--color-rounded-border)" }}
-          strokeWidth={0.75}
-          strokeDasharray="1 4"
-          strokeLinecap="round"
-        />
-        {/* Perpendicular serif at the outer end */}
-        <line
-          x1={refLine.x2 - 5 / Math.SQRT2}
-          y1={refLine.y2 - 5 / Math.SQRT2}
-          x2={refLine.x2 + 5 / Math.SQRT2}
-          y2={refLine.y2 + 5 / Math.SQRT2}
-          style={{ stroke: "var(--color-rounded-border)" }}
-          strokeWidth={0.75}
-        />
-        {/* Label */}
-        <text
-          x={(refLine.x1 + refLine.x2) / 2 - 10}
-          y={(refLine.y1 + refLine.y2) / 2 - 4}
-          fill="currentColor"
-          fontSize={9}
-          className="text-zinc-400"
-        >
-          1
-        </text>
-      </g>
+      {/* Animated diagonal line — morphs between reference line and measurement line */}
+      {(() => {
+        const visible = showRefLine || (showMeasurement && measure);
+        // When measurement is active, use measurement coords; otherwise use reference line
+        const useMeasure = showMeasurement && measure;
+        const x1 = useMeasure ? cornerX : refLine.x1;
+        const y1 = useMeasure ? cornerY : refLine.y1;
+        const x2 = useMeasure ? measure!.endX : refLine.x2;
+        const y2 = useMeasure ? measure!.endY : refLine.y2;
+        const serifLen = useMeasure ? 24 : 5;
+        const label = useMeasure ? measure!.ratio.toFixed(2) : "1";
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const svgW = PAD * 2 + BOX;
+        const nearTop = midY - 6 < 12;
+        const nearRight = midX + 6 + 24 > svgW;
+        const lx = nearRight ? midX - 28 : midX + 6;
+        const ly = nearTop ? midY + 12 : midY - 6;
+
+        const strokeColor = useMeasure ? `var(${measure!.cssVar})` : "var(--color-rounded-border)";
+
+        const morphTransition = isMorphing
+          ? { type: "spring" as const, stiffness: 200, damping: 25 }
+          : { duration: 0 };
+
+        return (
+          <motion.g animate={{ opacity: visible ? 1 : 0 }} transition={{ duration: 0.4 }}>
+            <g style={{ color: strokeColor, transition: "color 0.5s" }}>
+              {/* Main diagonal line */}
+              <motion.line
+                animate={{ x1, y1, x2, y2 }}
+                transition={morphTransition}
+                stroke="currentColor"
+                strokeWidth={0.75}
+                strokeDasharray="1 4"
+                strokeLinecap="round"
+              />
+              {/* Perpendicular serif at the end point */}
+              <motion.line
+                animate={{
+                  x1: x2 - serifLen / Math.SQRT2,
+                  y1: y2 - serifLen / Math.SQRT2,
+                  x2: x2 + serifLen / Math.SQRT2,
+                  y2: y2 + serifLen / Math.SQRT2,
+                }}
+                transition={morphTransition}
+                stroke="currentColor"
+                strokeWidth={0.75}
+              />
+              {/* Label */}
+              <motion.text
+                animate={{ x: lx, y: ly }}
+                transition={morphTransition}
+                fill="currentColor"
+                fontSize={9}
+                className="text-zinc-400"
+              >
+                {label}
+              </motion.text>
+            </g>
+          </motion.g>
+        );
+      })()}
     </svg>
   );
 }

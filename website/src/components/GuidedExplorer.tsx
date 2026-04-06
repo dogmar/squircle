@@ -15,10 +15,14 @@ import { slides } from "./slides";
 const INITIAL_GRAPHIC_STATE: GraphicState = {
   showRounded: false,
   showSuperellipse: false,
-  showCorrected: false,
+  correctionAmount: 0,
   amount: 1.5,
+  showRefLine: false,
   showMeasurement: false,
   measureArc: undefined,
+  showFill: true,
+  showStroke: false,
+  zoom: 1,
 };
 
 function computeGraphicState(slideIndex: number, stepIndex: number): GraphicState {
@@ -41,6 +45,7 @@ export default function GuidedExplorer() {
   const [stepIndex, setStepIndex] = useState(0);
   const [mode, setMode] = useState<"tour" | "explore">("tour");
   const [exploreState, setExploreState] = useState<GraphicState | null>(null);
+  const [userAmount, setUserAmount] = useState<number | null>(null);
 
   // Compute the target graphic state from the current position
   const targetState = useMemo(
@@ -61,8 +66,14 @@ export default function GuidedExplorer() {
   const [animatedAmount, setAnimatedAmount] = useState(targetState.amount);
 
   useEffect(() => {
-    amountMV.set(targetState.amount);
-  }, [targetState.amount, amountMV]);
+    if (userAmount != null) {
+      // Slider: bypass spring, update instantly
+      amountMV.jump(userAmount);
+    } else {
+      // Step transition: animate via spring
+      amountMV.set(targetState.amount);
+    }
+  }, [targetState.amount, userAmount, amountMV]);
 
   useEffect(() => {
     const unsubscribe = amountSpring.on("change", (v) => {
@@ -71,12 +82,29 @@ export default function GuidedExplorer() {
     return unsubscribe;
   }, [amountSpring]);
 
+  // Animated correctionAmount using framer-motion spring
+  const correctionMV = useMotionValue(targetState.correctionAmount);
+  const correctionSpring = useSpring(correctionMV, { stiffness: 80, damping: 20, mass: 1 });
+  const [animatedCorrection, setAnimatedCorrection] = useState(targetState.correctionAmount);
+
+  useEffect(() => {
+    correctionMV.set(targetState.correctionAmount);
+  }, [targetState.correctionAmount, correctionMV]);
+
+  useEffect(() => {
+    const unsubscribe = correctionSpring.on("change", (v) => {
+      setAnimatedCorrection(v);
+    });
+    return unsubscribe;
+  }, [correctionSpring]);
+
   const currentSlide = slides[slideIndex]!;
   const isLastSlide = slideIndex === slides.length - 1;
   const isLastStep = stepIndex === currentSlide.steps.length - 1;
   const isLastStepOfLastSlide = isLastSlide && isLastStep;
 
   const handleNext = useCallback(() => {
+    setUserAmount(null);
     if (!isLastStep) {
       setStepIndex((s) => s + 1);
     } else if (isLastStepOfLastSlide) {
@@ -90,6 +118,7 @@ export default function GuidedExplorer() {
   }, [isLastStep, isLastStepOfLastSlide, slideIndex, stepIndex]);
 
   const handleBack = useCallback(() => {
+    setUserAmount(null);
     if (mode === "explore") {
       setMode("tour");
     } else if (stepIndex > 0) {
@@ -117,12 +146,15 @@ export default function GuidedExplorer() {
 
   // Graphic state to pass to ExplorerGraphic
   const graphicStateForDisplay: GraphicState =
-    mode === "explore" && exploreState ? exploreState : { ...targetState, amount: animatedAmount };
+    mode === "explore" && exploreState
+      ? exploreState
+      : { ...targetState, amount: animatedAmount, correctionAmount: animatedCorrection };
 
   const canGoBack = mode === "explore" || slideIndex > 0 || stepIndex > 0;
   const canGoNext = mode !== "explore";
 
-  const nextLabel = isLastStepOfLastSlide ? "Explore" : "Next";
+  const stepDef = currentSlide.steps[stepIndex];
+  const nextLabel = isLastStepOfLastSlide ? "Explore" : (stepDef?.nextLabel ?? "Next");
 
   return (
     <div className="grid gap-8 md:grid-cols-2 md:items-start">
@@ -142,7 +174,9 @@ export default function GuidedExplorer() {
                   exit={{ opacity: 0, x: -24 }}
                   transition={{ duration: 0.25 }}
                 >
-                  <SlideStepProvider step={stepIndex}>{currentSlide.content}</SlideStepProvider>
+                  <SlideStepProvider step={stepIndex} onAmountChange={setUserAmount}>
+                    {currentSlide.content}
+                  </SlideStepProvider>
                 </motion.div>
               </AnimatePresence>
             </div>

@@ -423,7 +423,7 @@ export default function MathExplorer({
               <path
                 d={buildCurvePath(corrArc)}
                 fill="none"
-                style={{ stroke: "var(--color-squircle-adjusted-border)" }}
+                style={{ stroke: "var(--color-adjusted-border)" }}
                 strokeWidth="1.5"
                 strokeDasharray={DASH}
                 strokeDashoffset={String((-2 * DASH_PERIOD) / 3)}
@@ -433,7 +433,7 @@ export default function MathExplorer({
                 cy={corrArc[0]!.y}
                 r="5.5"
                 fill="none"
-                style={{ stroke: "var(--color-squircle-adjusted-border)" }}
+                style={{ stroke: "var(--color-adjusted-border)" }}
                 strokeWidth="1"
               />
               <circle
@@ -441,7 +441,7 @@ export default function MathExplorer({
                 cy={corrArc[corrArc.length - 1]!.y}
                 r="5.5"
                 fill="none"
-                style={{ stroke: "var(--color-squircle-adjusted-border)" }}
+                style={{ stroke: "var(--color-adjusted-border)" }}
                 strokeWidth="1"
               />
             </>

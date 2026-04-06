@@ -1,9 +1,35 @@
-import { Animate } from "./Animate";
+import { useState } from "react";
+import { Animate, useAmountControl } from "./Animate";
 import type { GraphicState } from "./ExplorerGraphic";
+
+function AmountSlider({ min, max, initial }: { min: number; max: number; initial: number }) {
+  const onAmountChange = useAmountControl();
+  const [value, setValue] = useState(initial);
+  return (
+    <div className="mt-3 flex items-center gap-3">
+      <label className="text-sm font-medium text-zinc-400">Superellipse strength:</label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={0.1}
+        value={value}
+        className="slider-unfilled"
+        onChange={(e) => {
+          const v = parseFloat(e.target.value);
+          setValue(v);
+          onAmountChange?.(v);
+        }}
+      />
+      <span className="w-8 text-sm text-amber-400">{value.toFixed(1)}</span>
+    </div>
+  );
+}
 
 export type StepDef = {
   graphic?: Partial<GraphicState>;
   transition?: { duration?: number };
+  nextLabel?: string;
 };
 
 export type Slide = {
@@ -17,25 +43,15 @@ export const slides: Slide[] = [
     content: (
       <div>
         <Animate inStep={0}>
-          <h2 className="text-xl font-bold text-zinc-100">The Rounded Corner</h2>
-          <p className="mt-3 text-zinc-400">
-            CSS <code className="text-zinc-300">border-radius</code> draws a quarter-circle arc at
-            each corner of an element. It's simple, predictable, and universally supported.
-          </p>
-        </Animate>
-        <Animate inStep={1}>
-          <p className="mt-3 text-zinc-400">
-            But a circle arc meets the straight edge at a{" "}
-            <em className="text-zinc-200">right angle</em> — the curvature goes from zero to maximum
-            instantaneously. This abrupt transition is subtly visible, especially at larger radii.
+          <h2 className="type-step-heading">border-radius</h2>
+          <p className="type-step-body">
+            The old standby. Makes our buttons feel smooth. But we want our corners even{" "}
+            <i>smoother</i>. Let's apply <code>corner-shape: squircle()</code>
           </p>
         </Animate>
       </div>
     ),
-    steps: [
-      { graphic: { showRounded: true, amount: 1.5 } },
-      { graphic: { showMeasurement: true, measureArc: "rounded" } },
-    ],
+    steps: [{ graphic: { showSuperellipse: true, amount: 1, zoom: 0.75 }, nextLabel: "Apply it" }],
   },
 
   // Slide 1: The Superellipse
@@ -43,48 +59,34 @@ export const slides: Slide[] = [
     content: (
       <div>
         <Animate inStep={0}>
-          <h2 className="text-xl font-bold text-zinc-100">The Superellipse</h2>
-          <p className="mt-3 text-zinc-400">
-            A superellipse uses the equation{" "}
-            <code className="text-zinc-300">
-              |x|<sup>n</sup> + |y|<sup>n</sup> = r<sup>n</sup>
-            </code>{" "}
-            where <code className="text-zinc-300">n &gt; 2</code>. Unlike a circle, the curvature
-            increases gradually from the straight edge — producing a smoother, more continuous
-            transition.
+          <h2 className="type-step-heading">corner-shape: squircle()</h2>
+        </Animate>
+        <Animate inStep={0} outStep={1}>
+          <p className="type-step-body">
+            <i>Smoooooooth</i>. So nice. But notice what happened? The corner sticks out more than
+            before. But the <code>border-radius</code> is the same! What gives?
           </p>
         </Animate>
-        <Animate inStep={1}>
-          <p className="mt-3 text-zinc-400">
-            Notice that the superellipse curve sits <em className="text-zinc-200">inside</em> the
-            circle arc. Its effective radius is smaller — the corner appears less rounded than the
-            same <code className="text-zinc-300">border-radius</code> value would suggest.
+        <Animate inStep={1} outStep={2}>
+          <p className="type-step-body">
+            Its apparent radius is smaller — the distance from the corner to the curve's closest
+            point along the diagonal is smaller than the same{" "}
+            <code className="text-zinc-300">border-radius</code> value would suggest.
           </p>
-        </Animate>
-        <Animate inStep={2}>
+          <p className="mt-3 text-zinc-400">
+            See how the superellipse strength affects the perceived radius:
+          </p>
+          <AmountSlider min={1} max={3} initial={2} />
           <p className="mt-3 text-zinc-400">
             Watch as we increase <em className="text-zinc-200">K</em> (the superellipse exponent).
             Higher values create an ever-squarer corner shape.
           </p>
         </Animate>
-        <Animate inStep={2} outStep={3}>
-          <p className="mt-2 text-sm text-zinc-500 italic">
-            The gap between the curves grows larger as K increases.
-          </p>
-        </Animate>
-        <Animate inStep={3}>
-          <p className="mt-3 text-zinc-400">
-            At higher K values the difference between the superellipse and the circle arc is
-            striking — a correction is needed to match the intended radius.
-          </p>
-        </Animate>
       </div>
     ),
     steps: [
-      { graphic: { showSuperellipse: true } },
-      { graphic: { measureArc: "superellipse" } },
-      { graphic: { amount: 3 }, transition: { duration: 1.5 } },
-      { graphic: { amount: 1.5 }, transition: { duration: 1 } },
+      { graphic: { showSuperellipse: true, amount: 2 }, transition: { duration: 1 } },
+      { graphic: { showRounded: true }, transition: { duration: 1 } },
     ],
   },
 
@@ -118,7 +120,7 @@ export const slides: Slide[] = [
       </div>
     ),
     steps: [
-      { graphic: { showCorrected: true, showMeasurement: true, measureArc: "corrected" } },
+      { graphic: { correctionAmount: 1, measureArc: "corrected" } },
       { graphic: {} },
       { graphic: {} },
     ],

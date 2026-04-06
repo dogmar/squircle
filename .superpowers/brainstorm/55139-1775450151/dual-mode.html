@@ -1,0 +1,108 @@
+<h2>Dual-Mode Content: Append vs Replace</h2>
+<p class="subtitle">Each step chooses whether to add to the panel or replace it</p>
+
+<div class="section">
+  <h3>Updated Step Type</h3>
+  <div
+    style="
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e0e0e0;
+      overflow-x: auto;
+    "
+  >
+    <span style="color: #7c8aff">type</span> Step = {<br />
+    &nbsp;&nbsp;content: <span style="color: #e5c07b">React.ReactNode</span>;<br />
+    &nbsp;&nbsp;<span style="color: #fb923c">mode</span>:
+    <span style="color: #98c379">"append"</span> |
+    <span style="color: #98c379">"replace"</span>;<br />
+    &nbsp;&nbsp;graphic?: <span style="color: #e5c07b">Partial&lt;GraphicState&gt;</span>;<br />
+    &nbsp;&nbsp;transition?: <span style="color: #e5c07b">TransitionConfig</span>;<br />
+    };<br />
+  </div>
+</div>
+
+<div class="section">
+  <h3>Example Flow</h3>
+  <div
+    style="
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 2;
+      color: #cbd5e1;
+      font-family: monospace;
+    "
+  >
+    <div
+      style="display: grid; grid-template-columns: 32px 80px 1fr; gap: 4px 12px; align-items: start"
+    >
+      <span style="color: #7c8aff; font-weight: bold">0</span>
+      <span style="color: #fb923c">replace</span>
+      <span>🔄 &lt;h2&gt;The Rounded Corner&lt;/h2&gt;&lt;p&gt;CSS border-radius...&lt;/p&gt;</span>
+
+      <span style="color: #7c8aff; font-weight: bold">1</span>
+      <span style="color: #34d399">append</span>
+      <span
+        >➕ &lt;p&gt;Notice the abrupt join...&lt;/p&gt; —
+        <em>added below step 0's content</em></span
+      >
+
+      <span style="color: #7c8aff; font-weight: bold">2</span>
+      <span style="color: #34d399">append</span>
+      <span
+        >➕ &lt;p&gt;This is by design — arcs are circles...&lt;/p&gt; —
+        <em>added below step 1</em></span
+      >
+
+      <span style="color: #7c8aff; font-weight: bold">3</span>
+      <span style="color: #fb923c">replace</span>
+      <span
+        >🔄 &lt;h2&gt;The Superellipse&lt;/h2&gt;&lt;p&gt;A smoother curve...&lt;/p&gt; —
+        <em>clears panel</em></span
+      >
+
+      <span style="color: #7c8aff; font-weight: bold">4</span>
+      <span style="color: #34d399">append</span>
+      <span>➕ &lt;p&gt;But the perceived radius shrinks!&lt;/p&gt;</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Panel Behavior</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+    <div
+      style="background: #1e293b; padding: 16px; border-radius: 8px; border-left: 3px solid #fb923c"
+    >
+      <h4 style="color: #fb923c; margin: 0 0 8px; font-size: 14px">mode: "replace"</h4>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8">
+        Previous content animates out via <code>AnimatePresence</code>, then new content animates
+        in. Clean slate.
+      </p>
+    </div>
+    <div
+      style="background: #1e293b; padding: 16px; border-radius: 8px; border-left: 3px solid #34d399"
+    >
+      <h4 style="color: #34d399; margin: 0 0 8px; font-size: 14px">mode: "append"</h4>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8">
+        New content animates in below existing content. Previous content stays in the DOM. Panel
+        scrolls if needed.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Going Backward</h3>
+  <p style="color: #94a3b8; font-size: 14px">
+    Replay steps 0..N to reconstruct which content nodes are visible. All
+    <code>"replace"</code> steps clear earlier nodes. All <code>"append"</code> steps add to the
+    list. The graphic state is also replayed from scratch.
+  </p>
+</div>

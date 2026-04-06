@@ -1,0 +1,185 @@
+<h2>Slide System Architecture</h2>
+<p class="subtitle">How should slides be defined and how should transitions work?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Declarative Slide Objects (Recommended)</h3>
+      <p>
+        Each slide is a plain object declaring the <strong>target state</strong> of every visual
+        property. Framer Motion interpolates between states automatically.
+      </p>
+      <div
+        style="
+          background: #1a1a2e;
+          padding: 16px;
+          border-radius: 8px;
+          margin-top: 12px;
+          font-family: monospace;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e0e0e0;
+        "
+      >
+        <span style="color: #7c8aff">const</span> slides = [<br />
+        &nbsp;&nbsp;{<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;title:
+        <span style="color: #98c379">"The Rounded Corner"</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;body:
+        <span style="color: #98c379">"CSS border-radius draws a circular arc..."</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;graphic: {<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showRounded:
+        <span style="color: #d19a66">true</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showSuperellipse:
+        <span style="color: #d19a66">false</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showCorrected:
+        <span style="color: #d19a66">false</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount: <span style="color: #d19a66">1.5</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showMeasurement:
+        <span style="color: #d19a66">false</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;}<br />
+        &nbsp;&nbsp;},<br />
+        &nbsp;&nbsp;{<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;title: <span style="color: #98c379">"The Superellipse"</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;body:
+        <span style="color: #98c379">"Now overlay the superellipse..."</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;graphic: {<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showRounded:
+        <span style="color: #d19a66">true</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showSuperellipse:
+        <span style="color: #d19a66">true</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount: <span style="color: #d19a66">1.5</span>,<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;}<br />
+        &nbsp;&nbsp;},<br />
+        ];<br />
+      </div>
+      <div class="pros-cons" style="margin-top: 12px">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Simple to author &amp; reorder slides</li>
+            <li>Framer Motion handles all interpolation</li>
+            <li>Easy to add/remove slides later</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Complex multi-step transitions need careful state design</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>State Machine (XState-style)</h3>
+      <p>
+        Define slides as states in a finite state machine with explicit transitions, guards, and
+        side effects.
+      </p>
+      <div
+        style="
+          background: #1a1a2e;
+          padding: 16px;
+          border-radius: 8px;
+          margin-top: 12px;
+          font-family: monospace;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e0e0e0;
+        "
+      >
+        <span style="color: #7c8aff">const</span> machine = {<br />
+        &nbsp;&nbsp;initial: <span style="color: #98c379">"intro"</span>,<br />
+        &nbsp;&nbsp;states: {<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;intro: {<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;graphic: { showRounded:
+        <span style="color: #d19a66">true</span> },<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: { NEXT:
+        <span style="color: #98c379">"overlay"</span> }<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;},<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;overlay: {<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;graphic: { showSuperellipse:
+        <span style="color: #d19a66">true</span> },<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: { NEXT:
+        <span style="color: #98c379">"mismatch"</span> }<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;}<br />
+        &nbsp;&nbsp;}<br />
+        };<br />
+      </div>
+      <div class="pros-cons" style="margin-top: 12px">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Explicit transition logic</li>
+            <li>Could support branching paths</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Adds XState dependency or custom machine</li>
+            <li>Overkill for a linear sequence</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Keyframe Timeline</h3>
+      <p>
+        Define a continuous timeline with keyframes at specific points. Slides are just named
+        positions along the timeline.
+      </p>
+      <div
+        style="
+          background: #1a1a2e;
+          padding: 16px;
+          border-radius: 8px;
+          margin-top: 12px;
+          font-family: monospace;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e0e0e0;
+        "
+      >
+        <span style="color: #7c8aff">const</span> timeline = {<br />
+        &nbsp;&nbsp;duration: <span style="color: #d19a66">5</span>,
+        <span style="color: #5c6370">// total "units"</span><br />
+        &nbsp;&nbsp;keyframes: [<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;{ at: <span style="color: #d19a66">0</span>, label:
+        <span style="color: #98c379">"intro"</span>, ... },<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;{ at: <span style="color: #d19a66">1</span>, label:
+        <span style="color: #98c379">"overlay"</span>, ... },<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;{ at: <span style="color: #d19a66">2.5</span>, label:
+        <span style="color: #98c379">"sweep"</span>, ... },<br />
+        &nbsp;&nbsp;]<br />
+        };<br />
+      </div>
+      <div class="pros-cons" style="margin-top: 12px">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Supports continuous scrubbing</li>
+            <li>Natural for video-like presentations</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>More complex to implement</li>
+            <li>Harder to add discrete text changes</li>
+            <li>Overkill for step-based tour</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
