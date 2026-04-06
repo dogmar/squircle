@@ -40,10 +40,15 @@
             >
               <div
                 id="toggle-knob"
-                class="absolute top-0.5 left-4 h-5 w-5 rounded-full bg-white transition-all"
+                class="absolute top-0.5 left-[1.375rem] h-5 w-5 rounded-full bg-white transition-all"
               ></div>
             </div>
             <span class="text-sm font-medium">Correction</span>
+            <span
+              id="correction-status"
+              class="rounded bg-emerald-400/10 px-2 py-0.5 text-xs text-emerald-400"
+              >ON</span
+            >
           </button>
 
           <!-- Radius slider -->
@@ -57,38 +62,32 @@
                 max="160"
                 value="60"
                 step="1"
-                class="slider-filled"
+                class="flex-1 accent-indigo-500"
               />
-              <input
-                id="radius-value"
-                type="text"
-                value="60px"
-                class="w-12 bg-transparent text-right font-mono text-sm text-indigo-400 outline-none"
-              />
+              <span id="radius-value" class="w-12 text-right font-mono text-sm text-indigo-400"
+                >60px</span
+              >
             </div>
           </div>
 
-          <!-- Amount slider -->
+          <!-- Exponent slider -->
           <div class="min-w-0 flex-1">
             <label class="text-xs tracking-wider text-zinc-500 uppercase"
-              >Superellipse Amount</label
+              >Superellipse Exponent</label
             >
             <div class="mt-1 flex items-center gap-3">
               <input
                 type="range"
                 id="exponent-slider"
-                min="-3"
-                max="3"
+                min="1"
+                max="8"
                 value="1.5"
                 step="0.1"
-                class="slider-unfilled"
+                class="flex-1 accent-amber-500"
               />
-              <input
-                id="exponent-value"
-                type="text"
-                value="1.5"
-                class="w-10 bg-transparent text-right font-mono text-sm text-amber-400 outline-none"
-              />
+              <span id="exponent-value" class="w-16 text-right font-mono text-sm text-amber-400"
+                >n = 1.5</span
+              >
             </div>
           </div>
         </div>
@@ -123,8 +122,8 @@
               ></div>
               <!-- Legend -->
               <div class="absolute top-3 right-3 space-y-1 text-right text-xs">
-                <div class="text-red-500">● circular</div>
-                <div class="text-indigo-500">● squircle</div>
+                <div class="text-rounded-border">● rounded</div>
+                <div class="text-squircle-border">● squircle</div>
               </div>
             </div>
             <!-- Readout -->
@@ -201,13 +200,92 @@
       <section class="mb-16">
         <h2 class="mb-4 text-xl font-bold">Code Generator</h2>
         <p class="mb-6 text-sm text-zinc-400">
-          Uses the radius and amount from the controls above. Copy the generated CSS or Tailwind
-          classes.
+          Adjust each corner radius and the superellipse exponent to preview the shape, then copy
+          the generated CSS or Tailwind classes.
         </p>
 
         <div class="flex flex-col gap-8 lg:flex-row">
           <!-- Left: Controls + Preview -->
           <div class="min-w-0 flex-1">
+            <!-- Corner radius inputs -->
+            <div class="mb-4 grid grid-cols-2 gap-3">
+              <div>
+                <label for="gen-tl" class="text-xs tracking-wider text-zinc-500 uppercase"
+                  >Top Left</label
+                >
+                <input
+                  id="gen-tl"
+                  type="number"
+                  min="0"
+                  max="200"
+                  value="16"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-sm text-zinc-100"
+                />
+              </div>
+              <div>
+                <label for="gen-tr" class="text-xs tracking-wider text-zinc-500 uppercase"
+                  >Top Right</label
+                >
+                <input
+                  id="gen-tr"
+                  type="number"
+                  min="0"
+                  max="200"
+                  value="16"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-sm text-zinc-100"
+                />
+              </div>
+              <div>
+                <label for="gen-bl" class="text-xs tracking-wider text-zinc-500 uppercase"
+                  >Bottom Left</label
+                >
+                <input
+                  id="gen-bl"
+                  type="number"
+                  min="0"
+                  max="200"
+                  value="16"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-sm text-zinc-100"
+                />
+              </div>
+              <div>
+                <label for="gen-br" class="text-xs tracking-wider text-zinc-500 uppercase"
+                  >Bottom Right</label
+                >
+                <input
+                  id="gen-br"
+                  type="number"
+                  min="0"
+                  max="200"
+                  value="16"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-sm text-zinc-100"
+                />
+              </div>
+            </div>
+
+            <!-- Exponent -->
+            <div class="mb-4">
+              <label for="gen-exponent" class="text-xs tracking-wider text-zinc-500 uppercase"
+                >Superellipse Exponent</label
+              >
+              <div class="mt-1 flex items-center gap-3">
+                <input
+                  type="range"
+                  id="gen-exponent"
+                  min="1"
+                  max="8"
+                  value="2"
+                  step="0.1"
+                  class="flex-1 accent-amber-500"
+                />
+                <span
+                  id="gen-exponent-value"
+                  class="w-10 text-right font-mono text-sm text-amber-400"
+                  >2</span
+                >
+              </div>
+            </div>
+
             <!-- Mode radio -->
             <fieldset class="mb-6">
               <legend class="mb-2 text-xs tracking-wider text-zinc-500 uppercase">
@@ -255,7 +333,7 @@
               <textarea
                 id="gen-css"
                 readonly
-                rows="10"
+                rows="14"
                 class="w-full resize-none rounded border border-zinc-700 bg-zinc-900 p-3 font-mono text-xs leading-relaxed text-zinc-300 select-all focus:border-indigo-500 focus:outline-none"
               ></textarea>
             </div>

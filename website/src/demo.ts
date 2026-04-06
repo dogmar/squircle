@@ -14,9 +14,9 @@ const exponentSlider = document.getElementById("exponent-slider") as HTMLInputEl
 const correctionToggle = document.getElementById("correction-toggle")!;
 const toggleTrack = document.getElementById("toggle-track")!;
 const toggleKnob = document.getElementById("toggle-knob")!;
-const correctionStatus = document.getElementById("correction-status")!;
-const radiusValue = document.getElementById("radius-value")!;
-const exponentValue = document.getElementById("exponent-value")!;
+
+const radiusValue = document.getElementById("radius-value") as HTMLInputElement;
+const exponentValue = document.getElementById("exponent-value") as HTMLInputElement;
 
 let correctionOn = true;
 
@@ -32,8 +32,32 @@ correctionToggle.addEventListener("click", () => {
   update();
 });
 
-radiusSlider.addEventListener("input", update);
-exponentSlider.addEventListener("input", update);
+radiusSlider.addEventListener("input", () => {
+  radiusValue.value = `${radiusSlider.value}px`;
+  update();
+  updateGenerator();
+});
+exponentSlider.addEventListener("input", () => {
+  exponentValue.value = exponentSlider.value;
+  update();
+  updateGenerator();
+});
+radiusValue.addEventListener("change", () => {
+  const num = parseFloat(radiusValue.value);
+  if (!Number.isNaN(num)) {
+    radiusSlider.value = String(Math.min(Math.max(num, 0), 160));
+  }
+  update();
+  updateGenerator();
+});
+exponentValue.addEventListener("change", () => {
+  const num = parseFloat(exponentValue.value);
+  if (!Number.isNaN(num)) {
+    exponentSlider.value = String(Math.min(Math.max(num, -3), 3));
+  }
+  update();
+  updateGenerator();
+});
 
 // ── Section 1: Overlay Comparison ──
 
@@ -49,10 +73,6 @@ function updateOverlay(r: number, cssN: number, mathN: number): void {
   squircleBox.style.borderTopRightRadius = `${squircleR.toFixed(1)}px`;
   squircleBox.style.setProperty("corner-shape", `superellipse(${cssN})`);
 
-  correctionStatus.textContent = correctionOn ? "ON" : "OFF";
-  correctionStatus.className = correctionOn
-    ? "text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded"
-    : "text-xs text-red-400 bg-red-400/10 px-2 py-0.5 rounded";
   readoutCircleR.textContent = String(r);
   readoutSquircleR.textContent = squircleR.toFixed(1);
 }
@@ -78,38 +98,57 @@ boxRect.setAttribute("stroke", "#3f3f46");
 boxRect.setAttribute("stroke-width", "1");
 svgEl.appendChild(boxRect);
 
+const DASH = "4 3";
+const DASH_PERIOD = 7;
+
 const circlePath = document.createElementNS(NS, "path");
 circlePath.setAttribute("fill", "none");
-circlePath.setAttribute("stroke", "#ef4444");
-circlePath.setAttribute("stroke-width", "2");
-circlePath.setAttribute("stroke-dasharray", "4 3");
+circlePath.style.stroke = "var(--color-rounded-border)";
+circlePath.setAttribute("stroke-width", "1.5");
+circlePath.setAttribute("stroke-dasharray", DASH);
+circlePath.setAttribute("stroke-dashoffset", "0");
 svgEl.appendChild(circlePath);
 
 const superPath = document.createElementNS(NS, "path");
 superPath.setAttribute("fill", "none");
-superPath.setAttribute("stroke", "#6366f1");
-superPath.setAttribute("stroke-width", "2");
+superPath.style.stroke = "var(--color-squircle-border)";
+superPath.setAttribute("stroke-width", "1.5");
+superPath.setAttribute("stroke-dasharray", DASH);
+superPath.setAttribute("stroke-dashoffset", String(-DASH_PERIOD / 3));
 svgEl.appendChild(superPath);
 
 const corrPath = document.createElementNS(NS, "path");
 corrPath.setAttribute("fill", "none");
-corrPath.setAttribute("stroke", "#10b981");
-corrPath.setAttribute("stroke-width", "2");
+corrPath.style.stroke = "var(--color-squircle-adjusted-border)";
+corrPath.setAttribute("stroke-width", "1.5");
+corrPath.setAttribute("stroke-dasharray", DASH);
+corrPath.setAttribute("stroke-dashoffset", String((-2 * DASH_PERIOD) / 3));
 svgEl.appendChild(corrPath);
 
-function makeDot(color: string): SVGCircleElement {
+function makeFilledDot(cssVar: string, diameter: number): SVGCircleElement {
   const dot = document.createElementNS(NS, "circle");
-  dot.setAttribute("r", "3.5");
-  dot.setAttribute("fill", color);
+  dot.setAttribute("r", String(diameter / 2));
+  dot.style.fill = `var(${cssVar})`;
   svgEl.appendChild(dot);
   return dot;
 }
-const cDotTop = makeDot("#ef4444");
-const cDotRight = makeDot("#ef4444");
-const sDotTop = makeDot("#6366f1");
-const sDotRight = makeDot("#6366f1");
-const corrDotTop = makeDot("#10b981");
-const corrDotRight = makeDot("#10b981");
+
+function makeRingDot(cssVar: string, diameter: number, strokeWidth: number): SVGCircleElement {
+  const dot = document.createElementNS(NS, "circle");
+  dot.setAttribute("r", String((diameter - strokeWidth) / 2));
+  dot.setAttribute("fill", "none");
+  dot.style.stroke = `var(${cssVar})`;
+  dot.setAttribute("stroke-width", String(strokeWidth));
+  svgEl.appendChild(dot);
+  return dot;
+}
+
+const cDotTop = makeFilledDot("--color-rounded-border", 4);
+const cDotRight = makeFilledDot("--color-rounded-border", 4);
+const sDotTop = makeRingDot("--color-squircle-border", 8, 1);
+const sDotRight = makeRingDot("--color-squircle-border", 8, 1);
+const corrDotTop = makeRingDot("--color-squircle-adjusted-border", 12, 1);
+const corrDotRight = makeRingDot("--color-squircle-adjusted-border", 12, 1);
 
 function arcToSvg(mathX: number, mathY: number, arcR: number): { x: number; y: number } {
   return { x: cornerX - arcR + mathX, y: cornerY + arcR - mathY };
@@ -199,24 +238,15 @@ function update(): void {
   const cssN = Number(exponentSlider.value);
   const mathN = Math.pow(2, cssN);
 
-  radiusValue.textContent = `${r}px`;
-  exponentValue.textContent = `n = ${cssN}`;
+  radiusValue.value = `${r}px`;
+  exponentValue.value = String(cssN);
 
   updateOverlay(r, cssN, mathN);
   updateMathSvg(r, cssN, mathN);
 }
 
-// Initialize
-update();
-
 // ── Section 3: Code Generator ──
 
-const genTL = document.getElementById("gen-tl") as HTMLInputElement;
-const genTR = document.getElementById("gen-tr") as HTMLInputElement;
-const genBL = document.getElementById("gen-bl") as HTMLInputElement;
-const genBR = document.getElementById("gen-br") as HTMLInputElement;
-const genExponent = document.getElementById("gen-exponent") as HTMLInputElement;
-const genExponentValue = document.getElementById("gen-exponent-value")!;
 const genPreview = document.getElementById("gen-preview")!;
 const genStyle = document.createElement("style");
 document.head.appendChild(genStyle);
@@ -265,94 +295,113 @@ function twRadiusClass(prefix: string, token: string): string {
   return `${prefix}-${token}`;
 }
 
+// Parse a CSS value into numeric part + unit, or null if dynamic
+function parseCssLength(value: string): { num: number; unit: string } | null {
+  const match = value.match(/^(-?[\d.]+)\s*(%|[a-z]+)?$/i);
+  if (!match) return null;
+  return { num: Number(match[1]), unit: match[2] ?? "px" };
+}
+
+// Correction factor: (1 - 2^(-0.5)) / (1 - 2^(-1/n)) where n = 2^cssK
+function correctionFactor(cssK: number): number {
+  const n = Math.pow(2, cssK);
+  return (1 - Math.pow(2, -0.5)) / (1 - Math.pow(2, -1 / n));
+}
+
+// Build the smartest possible corrected radius expression
+function cssCorrectedRadius(value: string, cssK: number): string {
+  const factor = correctionFactor(cssK);
+  const parsed = parseCssLength(value);
+  if (parsed) {
+    // Fully static — compute the final value
+    const result = parsed.num * factor;
+    return `${Number(result.toFixed(2))}${parsed.unit}`;
+  }
+  // Dynamic value — multiply by pre-computed factor
+  return `calc(${value} * ${Number(factor.toFixed(6))})`;
+}
+
+function radiusShorthand(corners: string[]): string {
+  const [tl, tr, br, bl] = corners;
+  if (tl === tr && tr === br && br === bl) return tl!;
+  return `${tl} ${tr} ${br} ${bl}`;
+}
+
 function updateGenerator(): void {
-  const tl = Number(genTL.value);
-  const tr = Number(genTR.value);
-  const bl = Number(genBL.value);
-  const br = Number(genBR.value);
-  const cssK = Number(genExponent.value);
-  const mathN = Math.pow(2, cssK);
+  const r = `${radiusSlider.value}px`;
+  const corners = [r, r, r, r];
+  const cssK = Number(exponentSlider.value);
   const mode = getGenMode();
 
-  genExponentValue.textContent = String(cssK);
-
-  // Compute corrected radii
-  const corrTL = correctedRadius(tl, mathN);
-  const corrTR = correctedRadius(tr, mathN);
-  const corrBL = correctedRadius(bl, mathN);
-  const corrBR = correctedRadius(br, mathN);
-
-  // Generate CSS declarations
-  const allSame = tl === tr && tr === br && br === bl;
-  let cssBody: string;
+  const SEL = ".your-selector";
+  const lines: string[] = [];
+  const previewDecls: string[] = [];
+  const radius = radiusShorthand(corners);
 
   if (mode === "round") {
-    cssBody = allSame
-      ? `border-radius: ${tl}px;`
-      : `border-radius: ${tl}px ${tr}px ${br}px ${bl}px;`;
+    lines.push(`${SEL} {`);
+    lines.push(`  border-radius: ${radius};`);
+    lines.push(`}`);
+    previewDecls.push(`border-radius: ${radius};`);
   } else if (mode === "superellipse") {
-    const radius = allSame
-      ? `border-radius: ${tl}px;`
-      : `border-radius: ${tl}px ${tr}px ${br}px ${bl}px;`;
-    cssBody = `${radius}\ncorner-shape: superellipse(${cssK});`;
+    lines.push(`${SEL} {`);
+    lines.push(`  border-radius: ${radius};`);
+    lines.push(`  corner-shape: superellipse(${cssK});`);
+    lines.push(`}`);
+    previewDecls.push(`border-radius: ${radius};`);
+    previewDecls.push(`corner-shape: superellipse(${cssK});`);
   } else {
-    const fallback = allSame
-      ? `border-radius: ${tl}px;`
-      : `border-radius: ${tl}px ${tr}px ${br}px ${bl}px;`;
-    const corrected = allSame
-      ? `  border-radius: ${corrTL.toFixed(1)}px;`
-      : `  border-radius: ${corrTL.toFixed(1)}px ${corrTR.toFixed(1)}px ${corrBR.toFixed(1)}px ${corrBL.toFixed(1)}px;`;
-    cssBody = [
-      fallback,
-      `@supports (corner-shape: superellipse()) {`,
-      corrected,
-      `  corner-shape: superellipse(${cssK});`,
-      `}`,
-    ].join("\n");
+    const corrected = corners.map((c) => cssCorrectedRadius(c, cssK));
+    const correctedRadius = radiusShorthand(corrected);
+
+    lines.push(`${SEL} {`);
+    lines.push(`  border-radius: ${radius};`);
+    lines.push(`}`);
+    lines.push(``);
+    lines.push(`@supports (corner-shape: superellipse()) {`);
+    lines.push(`  ${SEL} {`);
+    lines.push(`    border-radius: ${correctedRadius};`);
+    lines.push(`    corner-shape: superellipse(${cssK});`);
+    lines.push(`  }`);
+    lines.push(`}`);
+
+    previewDecls.push(`border-radius: ${correctedRadius};`);
+    previewDecls.push(`corner-shape: superellipse(${cssK});`);
   }
 
-  // Apply to preview via <style> element and show in textarea
+  // Apply to preview via <style> element and show user-facing CSS in textarea
   genPreview.removeAttribute("style");
-  genStyle.textContent = `#gen-preview { ${cssBody} }`;
-  genCss.value = cssBody;
+  genStyle.textContent = `#gen-preview { ${previewDecls.join(" ")} }`;
+  genCss.value = lines.join("\n");
 
   // Generate Tailwind classes
+  const parsed = corners.map(parseCssLength);
+  const allNumericPx = parsed.every((p) => p !== null && (p.unit === "px" || p.unit === ""));
   let twClasses: string[];
 
   if (mode === "round") {
-    if (allSame) {
-      twClasses = [twRadiusClass("rounded", closestTwRadius(tl))];
+    const prefixes = ["rounded-tl", "rounded-tr", "rounded-br", "rounded-bl"] as const;
+    if (allNumericPx) {
+      twClasses = prefixes.map((p, i) => twRadiusClass(p, closestTwRadius(parsed[i]!.num)));
     } else {
-      twClasses = [
-        twRadiusClass("rounded-tl", closestTwRadius(tl)),
-        twRadiusClass("rounded-tr", closestTwRadius(tr)),
-        twRadiusClass("rounded-br", closestTwRadius(br)),
-        twRadiusClass("rounded-bl", closestTwRadius(bl)),
-      ];
+      twClasses = prefixes.map((p, i) => `${p}-[${corners[i]}]`);
     }
   } else {
-    const amtClass = cssK !== 2 ? `squircle-amt-[${cssK}]` : "";
-    if (allSame) {
-      twClasses = [twRadiusClass("squircle", closestTwRadius(tl))];
+    const prefixes = ["squircle-tl", "squircle-tr", "squircle-br", "squircle-bl"] as const;
+    if (allNumericPx) {
+      twClasses = prefixes.map((p, i) => twRadiusClass(p, closestTwRadius(parsed[i]!.num)));
     } else {
-      twClasses = [
-        twRadiusClass("squircle-tl", closestTwRadius(tl)),
-        twRadiusClass("squircle-tr", closestTwRadius(tr)),
-        twRadiusClass("squircle-br", closestTwRadius(br)),
-        twRadiusClass("squircle-bl", closestTwRadius(bl)),
-      ];
+      twClasses = prefixes.map((p, i) => `${p}-[${corners[i]}]`);
     }
-    if (amtClass) twClasses.push(amtClass);
+    if (cssK !== 2) twClasses.push(`squircle-amt-[${cssK}]`);
   }
   genTw.value = twClasses.join(" ");
 }
 
-genTL.addEventListener("input", updateGenerator);
-genTR.addEventListener("input", updateGenerator);
-genBL.addEventListener("input", updateGenerator);
-genBR.addEventListener("input", updateGenerator);
-genExponent.addEventListener("input", updateGenerator);
 document.querySelectorAll('input[name="gen-mode"]').forEach((el) => {
   el.addEventListener("change", updateGenerator);
 });
+
+// Initialize
+update();
 updateGenerator();
