@@ -69,6 +69,11 @@ export default function MathExplorer({
     const superPath = buildCurvePath(superSvg);
     const corrPath = buildCurvePath(corrSvg);
 
+    // Interior clip: same shape as the curve path, closed
+    const circleClip = circlePath + " Z";
+    const superClip = superPath + " Z";
+    const corrClip = corrPath + " Z";
+
     // Perceived radii
     const circlePerceived = perceivedRadius(r, r, 2);
     const superPerceived = perceivedRadius(r, r, mathN);
@@ -103,10 +108,20 @@ export default function MathExplorer({
       circlePath,
       superPath,
       corrPath,
+      circleClip,
+      superClip,
+      corrClip,
       circlePerceived,
       superPerceived,
       corrPerceived,
       measure,
+      // Reference line: circle arc center outward at 45° toward corner (length = r)
+      refLine: {
+        x1: cornerX - r,
+        y1: cornerY + r,
+        x2: cornerX - r + r / Math.SQRT2,
+        y2: cornerY + r - r / Math.SQRT2,
+      },
     };
   }, [amount, measureArc]);
 
@@ -131,10 +146,14 @@ export default function MathExplorer({
     circlePath,
     superPath,
     corrPath,
+    circleClip,
+    superClip,
+    corrClip,
     circlePerceived,
     superPerceived,
     corrPerceived,
     measure,
+    refLine,
   } = data;
 
   const circleDiff = circlePerceived - circlePerceived;
@@ -178,6 +197,18 @@ export default function MathExplorer({
 
       {/* SVG visualization */}
       <svg viewBox={`0 0 ${PAD * 2 + BOX} ${PAD * 2 + BOX}`} className="w-full max-w-md">
+        <defs>
+          <clipPath id="clip-circle">
+            <path d={circleClip} />
+          </clipPath>
+          <clipPath id="clip-super">
+            <path d={superClip} />
+          </clipPath>
+          <clipPath id="clip-corr">
+            <path d={corrClip} />
+          </clipPath>
+        </defs>
+
         {/* Circle arc */}
         {showRoundedProp && (
           <g>
@@ -185,9 +216,10 @@ export default function MathExplorer({
               d={circlePath}
               fill="none"
               style={{ stroke: "var(--color-rounded-border)" }}
-              strokeWidth={1.5}
+              strokeWidth={3}
               strokeDasharray={DASH}
               strokeDashoffset={0}
+              clipPath="url(#clip-circle)"
             />
             <circle
               cx={circleSvg[0]!.x}
@@ -211,9 +243,10 @@ export default function MathExplorer({
               d={superPath}
               fill="none"
               style={{ stroke: "var(--color-squircle-border)" }}
-              strokeWidth={1.5}
+              strokeWidth={3}
               strokeDasharray={DASH}
               strokeDashoffset={-DASH_PERIOD / 3}
+              clipPath="url(#clip-super)"
             />
             <circle
               cx={superSvg[0]!.x}
@@ -241,9 +274,10 @@ export default function MathExplorer({
               d={corrPath}
               fill="none"
               style={{ stroke: "var(--color-squircle-adjusted-border)" }}
-              strokeWidth={1.5}
+              strokeWidth={3}
               strokeDasharray={DASH}
               strokeDashoffset={(-2 * DASH_PERIOD) / 3}
+              clipPath="url(#clip-corr)"
             />
             <circle
               cx={corrSvg[0]!.x}
@@ -275,28 +309,69 @@ export default function MathExplorer({
               y2={measure.endY}
               style={{ stroke: `var(${measure.cssVar})` }}
               strokeWidth={0.75}
+              strokeDasharray="1 4"
+              strokeLinecap="round"
             />
             {/* Perpendicular serif at the curve end */}
             <line
-              x1={measure.endX - 5 / Math.SQRT2}
-              y1={measure.endY - 5 / Math.SQRT2}
-              x2={measure.endX + 5 / Math.SQRT2}
-              y2={measure.endY + 5 / Math.SQRT2}
+              x1={measure.endX - 24 / Math.SQRT2}
+              y1={measure.endY - 24 / Math.SQRT2}
+              x2={measure.endX + 24 / Math.SQRT2}
+              y2={measure.endY + 24 / Math.SQRT2}
               style={{ stroke: `var(${measure.cssVar})` }}
               strokeWidth={0.75}
             />
             {/* Ratio label */}
-            <text
-              x={(cornerX + measure.endX) / 2 + 6}
-              y={(cornerY + measure.endY) / 2 - 6}
-              fill="currentColor"
-              fontSize={9}
-              className="text-zinc-400"
-            >
-              {measure.ratio.toFixed(2)}
-            </text>
+            {(() => {
+              const midX = (cornerX + measure.endX) / 2;
+              const midY = (cornerY + measure.endY) / 2;
+              const svgW = PAD * 2 + BOX;
+              // Place label upper-right of line; flip to lower-left if near edge
+              const nearTop = midY - 6 < 12;
+              const nearRight = midX + 6 + 24 > svgW;
+              const lx = nearRight ? midX - 28 : midX + 6;
+              const ly = nearTop ? midY + 12 : midY - 6;
+              return (
+                <text x={lx} y={ly} fill="currentColor" fontSize={9} className="text-zinc-400">
+                  {measure.ratio.toFixed(2)}
+                </text>
+              );
+            })()}
           </g>
         )}
+
+        {/* Reference line: circle center to bottom-right edge, labeled "1" */}
+        <g>
+          <line
+            x1={refLine.x1}
+            y1={refLine.y1}
+            x2={refLine.x2}
+            y2={refLine.y2}
+            style={{ stroke: "var(--color-rounded-border)" }}
+            strokeWidth={0.75}
+            strokeDasharray="1 4"
+            strokeLinecap="round"
+          />
+          {/* Perpendicular serif at the outer end */}
+          <line
+            x1={refLine.x2 - 5 / Math.SQRT2}
+            y1={refLine.y2 - 5 / Math.SQRT2}
+            x2={refLine.x2 + 5 / Math.SQRT2}
+            y2={refLine.y2 + 5 / Math.SQRT2}
+            style={{ stroke: "var(--color-rounded-border)" }}
+            strokeWidth={0.75}
+          />
+          {/* Label */}
+          <text
+            x={(refLine.x1 + refLine.x2) / 2 - 10}
+            y={(refLine.y1 + refLine.y2) / 2 - 4}
+            fill="currentColor"
+            fontSize={9}
+            className="text-zinc-400"
+          >
+            1
+          </text>
+        </g>
       </svg>
 
       {/* Formula readout */}
