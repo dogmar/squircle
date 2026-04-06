@@ -14,4 +14,11 @@ export default defineConfig({
     format: "esm",
     dts: true,
   },
+  run: {
+    tasks: {
+      "generate:css": {
+        dependsOn: ["build"],
+      },
+    },
+  },
 });
