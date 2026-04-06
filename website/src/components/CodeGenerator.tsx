@@ -69,6 +69,8 @@ export default function CodeGenerator() {
   const [radius, setRadius] = useState(60);
   const [radiusText, setRadiusText] = useState("60px");
   const [mode, setMode] = useState<CornerMode>("corrected");
+  const [includeFallback, setIncludeFallback] = useState(false);
+  const [selector, setSelector] = useState(".your-selector");
 
   const { cssOutput, twOutput, previewStyle } = useMemo(() => {
     const corners = [`${radius}px`, `${radius}px`, `${radius}px`, `${radius}px`];
@@ -79,10 +81,10 @@ export default function CodeGenerator() {
     let previewStyle: React.CSSProperties = {};
 
     if (mode === "round") {
-      cssOutput = `.your-selector {\n  border-radius: ${rv};\n}`;
+      cssOutput = `${selector} {\n  border-radius: ${rv};\n}`;
       previewStyle = { borderRadius: rv };
     } else if (mode === "superellipse") {
-      cssOutput = `.your-selector {\n  border-radius: ${rv};\n  corner-shape: superellipse(${cssK});\n}`;
+      cssOutput = `${selector} {\n  border-radius: ${rv};\n  corner-shape: superellipse(${cssK});\n}`;
       previewStyle = {
         borderRadius: rv,
         cornerShape: `superellipse(${cssK})`,
@@ -91,15 +93,19 @@ export default function CodeGenerator() {
       // corrected
       const corrCorners = corners.map((c) => cssCorrectedRadius(c, cssK));
       const corrRv = radiusShorthand(corrCorners);
-      cssOutput =
-        `/* Fallback for browsers without corner-shape */\n` +
-        `.your-selector {\n  border-radius: ${rv};\n}\n\n` +
-        `@supports (corner-shape: superellipse()) {\n` +
-        `  .your-selector {\n` +
-        `    border-radius: ${corrRv};\n` +
-        `    corner-shape: superellipse(${cssK});\n` +
-        `  }\n` +
-        `}`;
+      if (includeFallback) {
+        cssOutput =
+          `/* Fallback for browsers without corner-shape */\n` +
+          `${selector} {\n  border-radius: ${rv};\n}\n\n` +
+          `@supports (corner-shape: superellipse()) {\n` +
+          `  ${selector} {\n` +
+          `    border-radius: ${corrRv};\n` +
+          `    corner-shape: superellipse(${cssK});\n` +
+          `  }\n` +
+          `}`;
+      } else {
+        cssOutput = `border-radius: ${corrRv};\n` + `corner-shape: superellipse(${cssK});`;
+      }
       previewStyle = {
         borderRadius: corrRv,
         cornerShape: `superellipse(${cssK})`,
@@ -119,7 +125,7 @@ export default function CodeGenerator() {
     const twOutput = classes.join(" ");
 
     return { cssOutput, twOutput, previewStyle };
-  }, [amount, radius, mode]);
+  }, [amount, radius, mode, includeFallback, selector]);
 
   function handleAmountTextCommit(value: string) {
     const parsed = parseFloat(value);
@@ -242,6 +248,32 @@ export default function CodeGenerator() {
               ))}
             </div>
           </fieldset>
+
+          {/* Fallback options (corrected mode only) */}
+          {mode === "corrected" && (
+            <div className="mb-6">
+              <label className="flex items-center gap-2 text-sm text-zinc-300">
+                <input
+                  type="checkbox"
+                  checked={includeFallback}
+                  onChange={(e) => setIncludeFallback(e.target.checked)}
+                  className="accent-indigo-500"
+                />
+                Include fallback for unsupported browsers
+              </label>
+              {includeFallback && (
+                <div className="mt-3 flex items-center gap-3">
+                  <label className="text-sm font-medium text-zinc-400">Selector</label>
+                  <input
+                    type="text"
+                    value={selector}
+                    onChange={(e) => setSelector(e.target.value)}
+                    className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-sm text-zinc-200"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Preview */}
           <div className="mb-4">
