@@ -15,8 +15,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "package",
     "types": ["node"]
   },
-  "include": ["src/**/*", "scripts/**/*"]
+  "include": ["package/src/**/*", "package/scripts/**/*"]
 }

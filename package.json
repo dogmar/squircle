@@ -1,60 +1,19 @@
 {
-  "name": "@klinking/tw-squircle",
-  "version": "0.1.0",
-  "description": "Tailwind CSS v4 squircle (superellipse) corner utilities with visual radius correction",
-  "keywords": [
-    "border-radius",
-    "corner-shape",
-    "squircle",
-    "superellipse",
-    "tailwind-plugin",
-    "tailwindcss"
-  ],
-  "homepage": "https://dogmar.github.io/tw-squircle",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dogmar/tw-squircle"
-  },
-  "files": [
-    "dist"
-  ],
+  "name": "vp-monorepo",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
-  "exports": {
-    "./squircle.css": "./dist/squircle.css",
-    "./squircle-radius.css": "./dist/squircle-radius.css",
-    "./merge": {
-      "types": "./dist/merge.d.mts",
-      "import": "./dist/merge.mjs"
-    },
-    "./plugin": {
-      "types": "./dist/plugin.d.mts",
-      "import": "./dist/plugin.mjs"
-    }
-  },
   "scripts": {
-    "dev": "vp dev docs",
-    "prepare": "vp config",
-    "prepublishOnly": "vp run build"
+    "ready": "vp fmt && vp lint && vp run -r test && vp run -r build",
+    "dev": "vp dev",
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.2.2",
-    "@types/node": "^25.5.2",
-    "oxlint": "^1.58.0",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.2",
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.15",
-    "vite-plus": "catalog:",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.15"
+    "@types/node": "catalog:",
+    "vite-plus": "catalog:"
   },
-  "peerDependencies": {
-    "tailwind-merge": ">=2.0.0",
-    "tailwindcss": ">=4.0.0"
+  "engines": {
+    "node": ">=22.12.0"
   },
-  "peerDependenciesMeta": {
-    "tailwind-merge": {
-      "optional": true
-    }
-  },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@10.30.2"
 }

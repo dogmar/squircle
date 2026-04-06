@@ -46,7 +46,7 @@ function generateCss(): string {
 /* THIS FILE IS GENERATED — do not edit by hand.
  * Source: scripts/generate-squircle-css.ts
  * Formula: src/variants.ts
- * Run: pnpm vp run generate:css */
+ * Run: vp run generate:css */
 
 /* ── Squircle utilities ─────────────────────────────────────── */
 /* squircle-amt-[n] sets the superellipse amount (default ${DEFAULT_AMT})    */

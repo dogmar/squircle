@@ -2,3 +2,5 @@ node_modules/
 dist/
 .worktrees/
 .pnpm-store/
+.DS_Store
+.playwright-mcp

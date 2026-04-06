@@ -1,4 +1,4 @@
-import "./style.css";
+// CSS loaded via <link> tag in index.html
 import {
   correctedRadius,
   superellipsePoints,

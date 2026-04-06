@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - src/squircle.css
-      - src/merge.ts
-      - src/plugin.ts
+      - package/src/squircle.css
+      - package/src/merge.ts
+      - package/src/plugin.ts
 
 jobs:
   sync:
@@ -16,17 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: "22"
+          cache: true
 
-      - run: pnpm install --frozen-lockfile
+      - run: vp install
 
       - name: Run sync script
-        run: pnpm vp run sync-readme
+        run: vp run sync-readme
 
       - name: Commit if changed
         run: |
