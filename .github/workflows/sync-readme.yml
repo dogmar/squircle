@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - package/src/squircle.css
-      - package/src/merge.ts
-      - package/src/plugin.ts
+      - package/src/**
+      - package/scripts/generate-squircle-css.ts
+      - package/vite.config.ts
+      - scripts/sync-readme.sh
+      - vite.config.ts
 
 jobs:
   sync:
