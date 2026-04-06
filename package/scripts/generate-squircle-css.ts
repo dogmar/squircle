@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -82,4 +83,5 @@ const distDir = join(__dirname, "..", "dist");
 mkdirSync(distDir, { recursive: true });
 const outPath = join(distDir, "squircle.css");
 writeFileSync(outPath, output);
+execFileSync("npx", ["vp", "fmt", outPath], { stdio: "inherit" });
 console.log(`Generated ${outPath}`);
