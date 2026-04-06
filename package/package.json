@@ -33,7 +33,6 @@
     }
   },
   "scripts": {
-    "build": "vp pack",
     "prepublishOnly": "vp run build"
   },
   "devDependencies": {
