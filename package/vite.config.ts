@@ -14,4 +14,11 @@ export default defineConfig({
     format: "esm",
     dts: true,
   },
+  run: {
+    tasks: {
+      build: {
+        command: "vp pack && tsx scripts/generate-squircle-css.ts",
+      },
+    },
+  },
 });

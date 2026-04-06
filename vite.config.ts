@@ -6,7 +6,7 @@ export default defineConfig({
     tasks: {
       "sync-readme": {
         command: "bash scripts/sync-readme.sh",
-        dependsOn: ["@klinking/tw-squircle#build", "@klinking/tw-squircle#generate:css"],
+        dependsOn: ["@klinking/tw-squircle#build"],
       },
     },
   },
