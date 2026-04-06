@@ -34,7 +34,6 @@
   },
   "scripts": {
     "build": "vp pack",
-    "generate:css": "tsx scripts/generate-squircle-css.ts",
     "prepublishOnly": "vp run build"
   },
   "devDependencies": {
