@@ -9,6 +9,7 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@semantic-release/exec": "catalog:",
     "@types/node": "catalog:",
     "conventional-changelog-conventionalcommits": "catalog:",
     "semantic-release": "catalog:",
