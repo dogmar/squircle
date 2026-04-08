@@ -8,8 +8,8 @@ export default defineConfig({
   },
   pack: {
     entry: {
-      plugin: "./src/plugin.ts",
-      merge: "./src/merge.ts",
+      "tw-plugin": "./src/tw-plugin.ts",
+      "tw-merge-cfg": "./src/tw-merge-cfg.ts",
     },
     format: "esm",
     dts: true,
