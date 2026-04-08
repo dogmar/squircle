@@ -16,6 +16,9 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      test: {
+        command: "vp test run",
+      },
       build: {
         command: "vp pack && tsx scripts/generate-squircle-css.ts",
       },
