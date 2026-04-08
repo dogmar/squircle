@@ -5,7 +5,8 @@
   patch (0.0.x):  fix:, perf:
   minor (0.x.0):  feat:
   major (x.0.0):  feat!: or fix!: (breaking change)
-  no release:     docs:, chore:, test:, ci:, style:, revert:
+  no release:     docs:, chore:, test:, ci:, style:
+  varies:         revert: (undoes the original commit's version bump)
 
   Examples:
     feat: add new squircle-radius utility
