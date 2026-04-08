@@ -37,8 +37,8 @@ sync_file() {
   rm -f "$REPO_ROOT/.sync-block.tmp"
 }
 
-sync_file "package/dist/squircle.css" "css"
-sync_file "package/dist/merge.mjs" "js"
-sync_file "package/dist/plugin.mjs" "js"
+sync_file "package/dist/tw-utils.css" "css"
+sync_file "package/dist/tw-merge-cfg.mjs" "js"
+sync_file "package/dist/tw-plugin.mjs" "js"
 
 echo "README synced."
