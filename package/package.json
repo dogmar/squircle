@@ -14,7 +14,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dogmar/squircle"
+    "url": "git+https://github.com/dogmar/squircle.git"
   },
   "files": [
     "dist"
