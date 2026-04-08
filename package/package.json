@@ -1,5 +1,5 @@
 {
-  "name": "@klinking/tw-squircle",
+  "name": "@klinking/squircle",
   "version": "0.1.0",
   "description": "Tailwind CSS v4 squircle (superellipse) corner utilities with visual radius correction",
   "keywords": [
@@ -21,15 +21,15 @@
   ],
   "type": "module",
   "exports": {
-    "./squircle.css": "./dist/squircle.css",
+    "./tw-utils.css": "./dist/tw-utils.css",
     "./squircle-radius.css": "./dist/squircle-radius.css",
-    "./merge": {
-      "types": "./dist/merge.d.mts",
-      "import": "./dist/merge.mjs"
+    "./tw-merge-cfg": {
+      "types": "./dist/tw-merge-cfg.d.mts",
+      "import": "./dist/tw-merge-cfg.mjs"
     },
-    "./plugin": {
-      "types": "./dist/plugin.d.mts",
-      "import": "./dist/plugin.mjs"
+    "./tw-plugin": {
+      "types": "./dist/tw-plugin.d.mts",
+      "import": "./dist/tw-plugin.mjs"
     }
   },
   "scripts": {
