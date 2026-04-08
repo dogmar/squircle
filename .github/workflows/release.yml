@@ -31,7 +31,20 @@ jobs:
 
       - run: vp run @klinking/squircle#build
 
+      - name: Debug npm auth context
+        run: |
+          echo "=== npm config ==="
+          npm config list
+          echo "=== OIDC env vars ==="
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL set: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL != '' }}"
+          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN set: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN != '' }}"
+          echo "=== .npmrc files ==="
+          cat ~/.npmrc 2>/dev/null || echo "no ~/.npmrc"
+          cat .npmrc 2>/dev/null || echo "no ./.npmrc"
+          cat package/.npmrc 2>/dev/null || echo "no package/.npmrc"
+
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+          DEBUG: "semantic-release:*,@semantic-release/npm:*"
