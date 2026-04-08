@@ -1,61 +1,15 @@
 ---
-import "../styles/global.css";
+import Layout from "../components/Layout.astro";
 import GuidedExplorer from "../components/GuidedExplorer";
 import CodeGenerator from "../components/CodeGenerator";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@klinking/tw-squircle — Interactive Demo</title>
-  </head>
-  <body class="min-h-screen bg-zinc-950 text-zinc-100">
-    <div class="mx-auto max-w-5xl px-4 py-12">
-      <header class="mb-8">
-        <div>
-          <h1 class="text-3xl font-bold">@klinking/tw-squircle</h1>
-          <a
-            href="https://github.com/dogmar/tw-squircle"
-            class="mt-1 inline-block text-sm text-indigo-400 hover:underline"
-            >GitHub</a
-          >
-        </div>
-        <p class="mt-2 text-zinc-400">
-          We all love the squircle! It's great, we can use it to make corners
-          feel <i>extra</i> smooth. Gives that little bit of zhuzh. Others can tell
-          you all about the math and why we love it. And now we can use them in CSS!
-          There's just one problem... for the same border-radius, the squircle will
-          look less rounded than the circle. That's where this package comes in.
-        </p>
-      </header>
-    </div>
+<Layout title="@klinking/tw-squircle — Interactive Demo">
+  <section class="mb-16">
+    <GuidedExplorer client:load />
+  </section>
 
-    <div class="mx-auto max-w-5xl px-4 pt-8">
-      <section class="mb-16">
-        <GuidedExplorer client:load />
-      </section>
-
-      <section class="mb-16">
-        <CodeGenerator client:visible />
-      </section>
-
-      <footer
-        class="flex gap-4 border-t border-zinc-800 pt-6 text-xs text-zinc-600"
-      >
-        <a
-          href="https://www.npmjs.com/package/@klinking/tw-squircle"
-          class="hover:text-zinc-400">npm</a
-        >
-        <a
-          href="https://github.com/dogmar/tw-squircle"
-          class="hover:text-zinc-400">GitHub</a
-        >
-        <a
-          href="https://caniuse.com/?search=corner-shape"
-          class="hover:text-zinc-400">Browser Support</a
-        >
-      </footer>
-    </div>
-  </body>
-</html>
+  <section class="mb-16">
+    <CodeGenerator client:visible />
+  </section>
+</Layout>

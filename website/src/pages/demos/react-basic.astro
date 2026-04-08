@@ -1,0 +1,25 @@
+---
+import Layout from "../../components/Layout.astro";
+import DemoEmbed from "../../components/DemoEmbed";
+---
+
+<Layout title="Demo: React + CSS-only — @klinking/tw-squircle">
+  <h2 class="mb-2 text-2xl font-bold">React + CSS-only</h2>
+  <p class="mb-8 text-zinc-400">
+    This demo compares regular <code class="text-zinc-300">rounded-*</code> corners
+    with squircle <code class="text-zinc-300">squircle-*</code> corners at several
+    radii. Edit the code to experiment.
+  </p>
+
+  <DemoEmbed
+    client:load
+    projectPath="website/examples/react-basic"
+    file="src/App.tsx"
+    height={600}
+  />
+
+  <p class="mt-4 text-sm text-zinc-500">
+    Powered by <a href="https://stackblitz.com" class="text-indigo-400 hover:underline">StackBlitz</a>.
+    Requires a Chromium-based browser.
+  </p>
+</Layout>
