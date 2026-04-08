@@ -1,7 +1,6 @@
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import {
   AnimatePresence,
-  motion,
   useMotionValue,
   usePresence,
   useSpring,
