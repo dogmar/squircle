@@ -23,6 +23,10 @@ jobs:
           node-version: "22"
           cache: true
 
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: "https://registry.npmjs.org"
+
       - run: vp install
 
       - run: vp run @klinking/squircle#build
@@ -30,3 +34,8 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        run: |
+          VERSION=$(node -p "require('./package/package.json').version")
+          npm view @klinking/squircle@$VERSION version 2>/dev/null && echo "v$VERSION already published, skipping" || npm publish ./package

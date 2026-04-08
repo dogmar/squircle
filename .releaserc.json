@@ -20,12 +20,6 @@
         "npmPublish": false
       }
     ],
-    [
-      "@semantic-release/exec",
-      {
-        "publishCmd": "npm publish ./package"
-      }
-    ],
     "@semantic-release/github"
   ]
 }
