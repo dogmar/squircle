@@ -3,7 +3,7 @@ packages:
   - package
 
 catalog:
-  "@anolilab/semantic-release-pnpm": ^1.1.7
+  "@anolilab/semantic-release-pnpm": ^3.2.2
   "@semantic-release/commit-analyzer": ^13.0.1
   "@semantic-release/github": ^11.0.1
   "@semantic-release/release-notes-generator": ^14.0.3
