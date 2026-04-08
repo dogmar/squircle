@@ -9,7 +9,11 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "catalog:",
+    "@semantic-release/git": "catalog:",
     "@types/node": "catalog:",
+    "conventional-changelog-conventionalcommits": "catalog:",
+    "semantic-release": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
