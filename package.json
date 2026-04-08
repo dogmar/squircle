@@ -9,6 +9,10 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@anolilab/semantic-release-pnpm": "catalog:",
+    "@semantic-release/commit-analyzer": "catalog:",
+    "@semantic-release/github": "catalog:",
+    "@semantic-release/release-notes-generator": "catalog:",
     "@types/node": "catalog:",
     "conventional-changelog-conventionalcommits": "catalog:",
     "semantic-release": "catalog:",

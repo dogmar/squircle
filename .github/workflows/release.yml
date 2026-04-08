@@ -2,40 +2,49 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
   id-token: write
+  contents: read
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 0
 
-      - uses: voidzero-dev/setup-vp@v1
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: true
+          node-version: '22'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
-      - uses: actions/setup-node@v4
-        with:
-          registry-url: "https://registry.npmjs.org"
+      - name: Install dependencies
+        run: pnpm install
 
-      - run: vp install
+      - name: Build package
+        run: pnpm --filter @klinking/tw-squircle run build
 
-      - run: vp run @klinking/squircle#build
+      # Ensure npm 11.5.1 or later for trusted publishing
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
 
-      - run: npx semantic-release
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to npm
-        run: |
-          VERSION=$(node -p "require('./package/package.json').version")
-          npm view @klinking/squircle@$VERSION version 2>/dev/null && echo "v$VERSION already published, skipping" || npm publish ./package
+        run: npx semantic-release
