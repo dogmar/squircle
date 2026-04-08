@@ -12,7 +12,8 @@ export default function DemoEmbed({
   height = 500,
 }: DemoEmbedProps) {
   const repo = "dogmar/tw-squircle";
-  const branch = "main";
+  // TODO: change back to "main" before merging
+  const branch = "feat/sandpack-demos";
   const src = `https://stackblitz.com/github/${repo}/tree/${branch}/${projectPath}?embed=1&theme=dark&file=${file}&hideExplorer=0&terminalHeight=0`;
 
   return (
