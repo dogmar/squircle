@@ -20,25 +20,18 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: '24'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install dependencies
-        run: pnpm install
+          node-version-file: ".node-version"
+          run-install: true
 
       - name: Build package
-        run: pnpm --filter @klinking/tw-squircle run build
+        run: vp run @klinking/tw-squircle#build
 
       - name: Release
         env:
