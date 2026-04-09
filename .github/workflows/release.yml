@@ -29,6 +29,7 @@ jobs:
         with:
           node-version-file: ".node-version"
           run-install: true
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Build package
         run: vp run @klinking/squircle#build
@@ -36,4 +37,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: pnpm exec semantic-release
