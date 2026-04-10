@@ -1,0 +1,12 @@
+import { defineConfig } from "vite-plus";
+
+export default defineConfig({
+  run: {
+    tasks: {
+      dev: {
+        command: "astro dev",
+        dependsOn: ["@klinking/squircle#build"],
+      },
+    },
+  },
+});

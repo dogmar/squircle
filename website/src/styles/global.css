@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@plugin "../../../package/src/tw-plugin";
+@plugin "../../../package/dist/tw-plugin.mjs";
 
 @theme {
   --color-rounded-border: oklch(0.7 0.17 257.57);

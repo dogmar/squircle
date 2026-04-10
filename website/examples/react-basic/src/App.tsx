@@ -62,20 +62,20 @@ export default function App() {
           <div className="flex flex-wrap gap-6">
             <Box
               label="squircle-3xl squircle-amt-1"
-              className="squircle-3xl squircle-amt-1 bg-emerald-600"
+              className="squircle-amt-1 squircle-3xl bg-emerald-600"
             />
             <Box
               label="squircle-3xl squircle-amt-1.5"
-              className="squircle-3xl squircle-amt-1.5 bg-emerald-600"
+              className="squircle-amt-1.5 squircle-3xl bg-emerald-600"
             />
             <Box label="squircle-3xl (default 2)" className="squircle-3xl bg-emerald-600" />
             <Box
               label="squircle-3xl squircle-amt-3"
-              className="squircle-3xl squircle-amt-3 bg-emerald-600"
+              className="squircle-amt-3 squircle-3xl bg-emerald-600"
             />
             <Box
               label="squircle-3xl squircle-amt-5"
-              className="squircle-3xl squircle-amt-5 bg-emerald-600"
+              className="squircle-amt-5 squircle-3xl bg-emerald-600"
             />
           </div>
         </section>
