@@ -10,6 +10,7 @@ import {
   isComment,
   usesIntermediateVar,
 } from "../src/variants";
+import { SUPPORTS_RULE } from "../src/variants";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +22,7 @@ function multiPropUtility(name: string, props: string[]) {
   return `\
 @utility ${name} {
 ${fallbacks}
-  @supports (corner-shape: superellipse()) {
+  ${SUPPORTS_RULE} {
     --squircle-r: ${formula};
 ${corrected}
     corner-shape: ${getCornerShape()};
@@ -33,7 +34,7 @@ function singlePropUtility(name: string, prop: string) {
   return `\
 @utility ${name} {
   ${prop}: --value(--radius-*);
-  @supports (corner-shape: superellipse()) {
+  ${SUPPORTS_RULE} {
     ${prop}: ${formula};
     corner-shape: ${getCornerShape()};
   }
@@ -44,18 +45,13 @@ function generateCss(): string {
   const blocks: string[] = [];
 
   blocks.push(`\
-/* THIS FILE IS GENERATED — do not edit by hand.
- * Source: scripts/generate-squircle-css.ts
- * Formula: src/variants.ts
- * Run: vp run generate:css */
-
 /* ── Squircle utilities ─────────────────────────────────────── */
 /* squircle-amt-[n] sets the superellipse amount (default ${DEFAULT_AMT})    */
 /* squircle-* mirrors rounded-* variants: all, t, r, b, l, s, e, tl, tr, br, bl, ss, se, es, ee */
 
 @utility squircle-amt-* {
   --squircle-amt: --value(--squircle-amt-*, number);
-  @supports (corner-shape: superellipse()) {
+  ${SUPPORTS_RULE} {
     corner-shape: superellipse(var(--squircle-amt));
   }
 }`);

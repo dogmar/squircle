@@ -16,6 +16,8 @@ function isComment(entry: VariantEntry): entry is SectionComment {
   return !Array.isArray(entry);
 }
 
+export const SUPPORTS_RULE = "@supports (corner-shape: superellipse(2))";
+
 export const VARIANTS: Record<string, VariantEntry> & Record<`$comment-${string}`, SectionComment> =
   {
     "": ["border-radius"],

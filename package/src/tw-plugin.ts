@@ -6,6 +6,7 @@ import {
   usesIntermediateVar,
   variantEntries,
 } from "./variants";
+import { SUPPORTS_RULE } from "./variants";
 
 export interface SquirclePluginOptions {
   /** CSS custom property name for the superellipse amount (default: "--squircle-amt") */
@@ -26,13 +27,12 @@ const squircle: ReturnType<typeof plugin.withOptions<SquirclePluginOptions>> =
 
     const amtCss = `var(${amtVar}, 2)`;
     const cornerShape = getCornerShape(amtVar);
-    const supportsCornerShape: string = "@supports (corner-shape: superellipse())";
 
     matchUtilities(
       {
         [`${prefix}-amt`]: (value: string) => ({
           [amtVar]: value,
-          [supportsCornerShape]: {
+          [SUPPORTS_RULE]: {
             "corner-shape": `superellipse(var(${amtVar}))`,
           },
         }),
@@ -48,7 +48,7 @@ const squircle: ReturnType<typeof plugin.withOptions<SquirclePluginOptions>> =
           {
             [name]: (value: string) => ({
               ...Object.fromEntries(props.map((p) => [p, value])),
-              [supportsCornerShape]: {
+              [SUPPORTS_RULE]: {
                 "--squircle-r": correctedRadius(value, amtCss),
                 ...Object.fromEntries(props.map((p) => [p, "var(--squircle-r)"])),
                 "corner-shape": cornerShape,
@@ -65,7 +65,7 @@ const squircle: ReturnType<typeof plugin.withOptions<SquirclePluginOptions>> =
               const result: Record<string, string | Record<string, string>> = {
                 [prop]: value,
               };
-              result[supportsCornerShape] = {
+              result[SUPPORTS_RULE] = {
                 [prop]: correctedRadius(value, amtCss),
                 "corner-shape": cornerShape,
               };

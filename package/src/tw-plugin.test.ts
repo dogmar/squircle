@@ -22,7 +22,7 @@ describe("plugin.ts utilities", () => {
 
     it(`${className} applies corrected radius in @supports block`, async () => {
       const css = await compilePlugin([className]);
-      expect(css).toContain("@supports (corner-shape: superellipse())");
+      expect(css).toContain("@supports (corner-shape: superellipse(2))");
       expect(css).toContain("pow(2, -0.5)");
     });
 

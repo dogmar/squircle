@@ -2,27 +2,27 @@
  * @type {import('semantic-release').GlobalConfig}
  */
 export default {
-  branches: ['main'],
+  branches: ["main"],
   plugins: [
     [
-      '@semantic-release/commit-analyzer',
+      "@semantic-release/commit-analyzer",
       {
-        preset: 'conventionalcommits',
+        preset: "conventionalcommits",
       },
     ],
     [
-      '@semantic-release/release-notes-generator',
+      "@semantic-release/release-notes-generator",
       {
-        preset: 'conventionalcommits',
+        preset: "conventionalcommits",
       },
     ],
     [
-      '@anolilab/semantic-release-pnpm',
+      "@anolilab/semantic-release-pnpm",
       {
-        pkgRoot: 'package',
+        pkgRoot: "package",
         npmPublish: true,
       },
     ],
-    '@semantic-release/github',
+    "@semantic-release/github",
   ],
-}
+};

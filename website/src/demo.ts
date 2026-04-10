@@ -323,7 +323,7 @@ function updateGenerator(): void {
     lines.push(`  border-radius: ${radius};`);
     lines.push(`}`);
     lines.push(``);
-    lines.push(`@supports (corner-shape: superellipse()) {`);
+    lines.push(`@supports (corner-shape: superellipse(2)) {`);
     lines.push(`  ${SEL} {`);
     lines.push(`    border-radius: ${correctedRadius};`);
     lines.push(`    corner-shape: superellipse(${cssK});`);

@@ -94,7 +94,7 @@ export default function CodeGenerator() {
       cssOutput =
         `/* Fallback for browsers without corner-shape */\n` +
         `.your-selector {\n  border-radius: ${rv};\n}\n\n` +
-        `@supports (corner-shape: superellipse()) {\n` +
+        `@supports (corner-shape: superellipse(2)) {\n` +
         `  .your-selector {\n` +
         `    border-radius: ${corrRv};\n` +
         `    corner-shape: superellipse(${cssK});\n` +

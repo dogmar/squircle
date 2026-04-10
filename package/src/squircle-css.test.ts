@@ -22,7 +22,7 @@ describe("squircle.css utilities", () => {
 
     it(`${className} applies corrected radius in @supports block`, async () => {
       const css = await compileCss([className]);
-      expect(css).toContain("@supports (corner-shape: superellipse())");
+      expect(css).toContain("@supports (corner-shape: superellipse(2))");
       expect(css).toContain("corner-shape: superellipse(var(--squircle-amt, 2))");
       expect(css).toContain("pow(2, -0.5)");
     });
