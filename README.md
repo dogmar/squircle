@@ -41,6 +41,8 @@ const twMerge = extendTailwindMerge(squircleMergeConfig, {
 
 CSS `corner-shape: superellipse()` makes corners follow a superellipse curve instead of a circular arc. But at the same `border-radius` value, superellipse corners look visually smaller. This package auto-adjusts the radius so `squircle-lg` visually matches `rounded-lg`.
 
+The adjusted radius is wrapped in a `@supports (corner-shape: superellipse(2))` rule, so browsers without support simply use the original `border-radius` unchanged. This means your corners will look visually consistent regardless of browser — no sudden changes when support lands, no broken fallbacks. Since browser support for `corner-shape` is still not universal, this gives you consistent visual border-radius forever.
+
 The correction formula:
 
 $$r' = r \cdot \frac{1 - 2^{-\frac{1}{2}}}{1 - 2^{-\frac{1}{n}}}$$
