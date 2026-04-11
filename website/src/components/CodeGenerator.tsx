@@ -70,41 +70,31 @@ export default function CodeGenerator() {
   const [radiusText, setRadiusText] = useState("60px");
   const [mode, setMode] = useState<CornerMode>("corrected");
 
-  const { cssOutput, twOutput, previewStyle } = useMemo(() => {
+  const { cssOutput, twOutput, previewCss } = useMemo(() => {
     const corners = [`${radius}px`, `${radius}px`, `${radius}px`, `${radius}px`];
     const rv = radiusShorthand(corners);
     const cssK = amount;
 
-    let cssOutput = "";
-    let previewStyle: React.CSSProperties = {};
+    // CSS output always shows corrected mode
+    const corrCorners = corners.map((c) => cssCorrectedRadius(c, cssK));
+    const corrRv = radiusShorthand(corrCorners);
+    const cssOutput =
+      `border-radius: ${rv};\n` +
+      `@supports (corner-shape: superellipse(2)) {\n` +
+      `  border-radius: ${corrRv};\n` +
+      `  corner-shape: superellipse(${cssK});\n` +
+      `}`;
 
+    // Preview CSS varies by mode
+    let previewDecls: string;
     if (mode === "round") {
-      cssOutput = `.your-selector {\n  border-radius: ${rv};\n}`;
-      previewStyle = { borderRadius: rv };
+      previewDecls = `border-radius: ${rv};`;
     } else if (mode === "superellipse") {
-      cssOutput = `.your-selector {\n  border-radius: ${rv};\n  corner-shape: superellipse(${cssK});\n}`;
-      previewStyle = {
-        borderRadius: rv,
-        cornerShape: `superellipse(${cssK})`,
-      } as React.CSSProperties;
+      previewDecls = `border-radius: ${rv};\n  corner-shape: superellipse(${cssK});`;
     } else {
-      // corrected
-      const corrCorners = corners.map((c) => cssCorrectedRadius(c, cssK));
-      const corrRv = radiusShorthand(corrCorners);
-      cssOutput =
-        `/* Fallback for browsers without corner-shape */\n` +
-        `.your-selector {\n  border-radius: ${rv};\n}\n\n` +
-        `@supports (corner-shape: superellipse(2)) {\n` +
-        `  .your-selector {\n` +
-        `    border-radius: ${corrRv};\n` +
-        `    corner-shape: superellipse(${cssK});\n` +
-        `  }\n` +
-        `}`;
-      previewStyle = {
-        borderRadius: corrRv,
-        cornerShape: `superellipse(${cssK})`,
-      } as React.CSSProperties;
+      previewDecls = `border-radius: ${corrRv};\n  corner-shape: superellipse(${cssK});`;
     }
+    const previewCss = `#squircle-preview {\n  ${previewDecls}\n}`;
 
     // Tailwind classes
     const token = closestTwRadius(radius);
@@ -118,7 +108,7 @@ export default function CodeGenerator() {
     }
     const twOutput = classes.join(" ");
 
-    return { cssOutput, twOutput, previewStyle };
+    return { cssOutput, twOutput, previewCss };
   }, [amount, radius, mode]);
 
   function handleAmountTextCommit(value: string) {
@@ -246,7 +236,8 @@ export default function CodeGenerator() {
           {/* Preview */}
           <div className="mb-4">
             <p className="mb-2 text-sm text-zinc-500">Preview</p>
-            <div className="h-40 w-56 bg-indigo-500" style={previewStyle} />
+            <style dangerouslySetInnerHTML={{ __html: previewCss }} />
+            <div id="squircle-preview" className="h-40 w-56 bg-indigo-500" />
           </div>
         </div>
 
