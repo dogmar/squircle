@@ -1,12 +1,13 @@
 import plugin from "tailwindcss/plugin";
 import {
+  DEFAULT_AMT,
   DEFAULT_AMOUNT_VAR_NAME,
   correctedRadius,
   getCornerShape,
   usesIntermediateVar,
   variantEntries,
+  SUPPORTS_RULE,
 } from "./variants";
-import { SUPPORTS_RULE } from "./variants";
 
 export interface SquirclePluginOptions {
   /** CSS custom property name for the superellipse amount (default: "--squircle-amt") */
@@ -25,7 +26,7 @@ const squircle: ReturnType<typeof plugin.withOptions<SquirclePluginOptions>> =
     const prefix = options.prefix ?? "squircle";
     const radiusValues = theme("borderRadius");
 
-    const amtCss = `var(${amtVar}, 2)`;
+    const amtCss = `var(${amtVar}, ${DEFAULT_AMT})`;
     const cornerShape = getCornerShape(amtVar);
 
     matchUtilities(
