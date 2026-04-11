@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 sync_file() {
   local filename="$1"
   local lang="$2"
-  local src="$REPO_ROOT/$filename"
+  local src="$REPO_ROOT/${3:-$filename}"
   local readme="$REPO_ROOT/README.md"
   local tmp="$REPO_ROOT/README.md.tmp"
   local begin="<!-- BEGIN:$filename -->"
@@ -37,8 +37,8 @@ sync_file() {
   rm -f "$REPO_ROOT/.sync-block.tmp"
 }
 
-sync_file "package/dist/tw-utils.css" "css"
-sync_file "package/dist/tw-merge-cfg.mjs" "js"
-sync_file "package/dist/tw-plugin.mjs" "js"
+sync_file "dist/tw-utils.css" "css" "package/dist/tw-utils.css"
+sync_file "dist/tw-merge-cfg.mjs" "js" "package/dist/tw-merge-cfg.mjs"
+sync_file "dist/tw-plugin.mjs" "js" "package/dist/tw-plugin.mjs"
 
 echo "README synced."

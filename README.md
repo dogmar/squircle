@@ -62,7 +62,7 @@ See the [interactive demo](https://dogmar.github.io/squircle) for a visual expla
 | `squircle-tr-*`  | `rounded-tr-*` | Top-right corner                    |
 | `squircle-br-*`  | `rounded-br-*` | Bottom-right corner                 |
 | `squircle-bl-*`  | `rounded-bl-*` | Bottom-left corner                  |
-| `squircle-amt-*` | —              | Superellipse exponent (default 1.5) |
+| `squircle-amt-*` | —              | Superellipse exponent (default 2) |
 
 All `squircle-*` utilities accept the same values as `rounded-*` (`sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `full`, arbitrary `[16px]`).
 
@@ -75,10 +75,9 @@ If you'd rather not add a dependency, copy the source directly:
 ### tw-utils.css
 
 <!-- BEGIN:dist/tw-utils.css -->
-
 ```css
 /* ── Squircle utilities ─────────────────────────────────────── */
-/* squircle-amt-[n] sets the superellipse amount (default 1.5)  */
+/* squircle-amt-[n] sets the superellipse amount (default 2)    */
 /* squircle-* mirrors rounded-* variants: all, t, r, b, l, s, e, tl, tr, br, bl, ss, se, es, ee */
 
 @utility squircle-amt-* {
@@ -93,10 +92,10 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -108,11 +107,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-top-left-radius: var(--squircle-r);
     border-top-right-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -122,11 +121,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-top-right-radius: var(--squircle-r);
     border-bottom-right-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -136,11 +135,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-bottom-left-radius: var(--squircle-r);
     border-bottom-right-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -150,11 +149,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-top-left-radius: var(--squircle-r);
     border-bottom-left-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -166,11 +165,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-start-start-radius: var(--squircle-r);
     border-end-start-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -180,11 +179,11 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     --squircle-r: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
     border-start-end-radius: var(--squircle-r);
     border-end-end-radius: var(--squircle-r);
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -195,9 +194,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-top-left-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -206,9 +205,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-top-right-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -217,9 +216,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-bottom-right-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -228,9 +227,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-bottom-left-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -241,9 +240,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-start-start-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -252,9 +251,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-start-end-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -263,9 +262,9 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-end-start-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 
@@ -274,345 +273,157 @@ If you'd rather not add a dependency, copy the source directly:
   @supports (corner-shape: superellipse(2)) {
     border-end-end-radius: calc(
       --value(--radius- *) * (1 - pow(2, -0.5)) /
-        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5))))
+        (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 2))))
     );
-    corner-shape: superellipse(var(--squircle-amt, 1.5));
+    corner-shape: superellipse(var(--squircle-amt, 2));
   }
 }
 ```
-
 <!-- END:dist/tw-utils.css -->
 
 ### tw-plugin.js
 
 <!-- BEGIN:dist/tw-plugin.mjs -->
-
-```ts
+```js
 import plugin from "tailwindcss/plugin";
-
-type PluginWithConfig = ReturnType<typeof plugin>;
-
-const correctedRadius = (value: string): string =>
-  `calc(${value} * (1 - pow(2, -0.5)) / (1 - pow(2, -1 * pow(2, -1 * var(--squircle-amt, 1.5)))))`;
-
-const cornerShape = "superellipse(var(--squircle-amt, 1.5))";
-
-const supportsCornerShape = "@supports (corner-shape: superellipse(2))";
-
-// eslint-disable-next-line @typescript-eslint/unbound-method
-const squirclePlugin: Parameters<typeof plugin>[0] = ({ matchUtilities, theme }) => {
-  const radiusValues = theme("borderRadius");
-
-  // squircle-amt-* — sets exponent + corner-shape
-  matchUtilities(
-    {
-      "squircle-amt": (value: string) => ({
-        "--squircle-amt": value,
-        [supportsCornerShape]: {
-          "corner-shape": "superellipse(var(--squircle-amt))",
-        },
-      }),
-    },
-    { type: "number" },
-  );
-
-  // squircle-* — all corners (uses intermediate --squircle-r variable)
-  matchUtilities(
-    {
-      squircle: (value: string) => ({
-        "border-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // --- Per-side physical variants (use intermediate --squircle-r variable) ---
-
-  // squircle-t-* — top-left + top-right
-  matchUtilities(
-    {
-      "squircle-t": (value: string) => ({
-        "border-top-left-radius": value,
-        "border-top-right-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-top-left-radius": "var(--squircle-r)",
-          "border-top-right-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-r-* — top-right + bottom-right
-  matchUtilities(
-    {
-      "squircle-r": (value: string) => ({
-        "border-top-right-radius": value,
-        "border-bottom-right-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-top-right-radius": "var(--squircle-r)",
-          "border-bottom-right-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-b-* — bottom-left + bottom-right
-  matchUtilities(
-    {
-      "squircle-b": (value: string) => ({
-        "border-bottom-left-radius": value,
-        "border-bottom-right-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-bottom-left-radius": "var(--squircle-r)",
-          "border-bottom-right-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-l-* — top-left + bottom-left
-  matchUtilities(
-    {
-      "squircle-l": (value: string) => ({
-        "border-top-left-radius": value,
-        "border-bottom-left-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-top-left-radius": "var(--squircle-r)",
-          "border-bottom-left-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // --- Per-side logical variants (use intermediate --squircle-r variable) ---
-
-  // squircle-s-* — start-start + end-start (inline-start side)
-  matchUtilities(
-    {
-      "squircle-s": (value: string) => ({
-        "border-start-start-radius": value,
-        "border-end-start-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-start-start-radius": "var(--squircle-r)",
-          "border-end-start-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-e-* — start-end + end-end (inline-end side)
-  matchUtilities(
-    {
-      "squircle-e": (value: string) => ({
-        "border-start-end-radius": value,
-        "border-end-end-radius": value,
-        [supportsCornerShape]: {
-          "--squircle-r": correctedRadius(value),
-          "border-start-end-radius": "var(--squircle-r)",
-          "border-end-end-radius": "var(--squircle-r)",
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // --- Per-corner physical variants (NO intermediate variable, direct calc) ---
-
-  // squircle-tl-*
-  matchUtilities(
-    {
-      "squircle-tl": (value: string) => ({
-        "border-top-left-radius": value,
-        [supportsCornerShape]: {
-          "border-top-left-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-tr-*
-  matchUtilities(
-    {
-      "squircle-tr": (value: string) => ({
-        "border-top-right-radius": value,
-        [supportsCornerShape]: {
-          "border-top-right-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-br-*
-  matchUtilities(
-    {
-      "squircle-br": (value: string) => ({
-        "border-bottom-right-radius": value,
-        [supportsCornerShape]: {
-          "border-bottom-right-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-bl-*
-  matchUtilities(
-    {
-      "squircle-bl": (value: string) => ({
-        "border-bottom-left-radius": value,
-        [supportsCornerShape]: {
-          "border-bottom-left-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // --- Per-corner logical variants (NO intermediate variable, direct calc) ---
-
-  // squircle-ss-*
-  matchUtilities(
-    {
-      "squircle-ss": (value: string) => ({
-        "border-start-start-radius": value,
-        [supportsCornerShape]: {
-          "border-start-start-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-se-*
-  matchUtilities(
-    {
-      "squircle-se": (value: string) => ({
-        "border-start-end-radius": value,
-        [supportsCornerShape]: {
-          "border-start-end-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-es-*
-  matchUtilities(
-    {
-      "squircle-es": (value: string) => ({
-        "border-end-start-radius": value,
-        [supportsCornerShape]: {
-          "border-end-start-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
-
-  // squircle-ee-*
-  matchUtilities(
-    {
-      "squircle-ee": (value: string) => ({
-        "border-end-end-radius": value,
-        [supportsCornerShape]: {
-          "border-end-end-radius": correctedRadius(value),
-          "corner-shape": cornerShape,
-        },
-      }),
-    },
-    { type: "length", values: radiusValues },
-  );
+const DEFAULT_AMOUNT_VAR_NAME = "--squircle-amt";
+const DEFAULT_AMT_CSS = `var(${DEFAULT_AMOUNT_VAR_NAME}, 2)`;
+const getCornerShape = (varName = DEFAULT_AMOUNT_VAR_NAME) => `superellipse(var(${varName}, 2))`;
+function correctedRadius(radius, amt = DEFAULT_AMT_CSS) {
+	return `calc(${radius} * (1 - pow(2, -0.5)) / (1 - pow(2, -1 * pow(2, -1 * ${amt}))))`;
+}
+function isComment(entry) {
+	return !Array.isArray(entry);
+}
+const SUPPORTS_RULE = "@supports (corner-shape: superellipse(2))";
+const VARIANTS = {
+	"": ["border-radius"],
+	"$comment-physical-sides": { comment: "/* --- Per-side physical variants --- */" },
+	t: ["border-top-left-radius", "border-top-right-radius"],
+	r: ["border-top-right-radius", "border-bottom-right-radius"],
+	b: ["border-bottom-left-radius", "border-bottom-right-radius"],
+	l: ["border-top-left-radius", "border-bottom-left-radius"],
+	"$comment-logical-sides": { comment: "/* --- Per-side logical variants --- */" },
+	s: ["border-start-start-radius", "border-end-start-radius"],
+	e: ["border-start-end-radius", "border-end-end-radius"],
+	"$comment-physical-corners": { comment: "/* --- Per-corner physical variants --- */" },
+	tl: ["border-top-left-radius"],
+	tr: ["border-top-right-radius"],
+	br: ["border-bottom-right-radius"],
+	bl: ["border-bottom-left-radius"],
+	"$comment-logical-corners": { comment: "/* --- Per-corner logical variants --- */" },
+	ss: ["border-start-start-radius"],
+	se: ["border-start-end-radius"],
+	es: ["border-end-start-radius"],
+	ee: ["border-end-end-radius"]
 };
+function variantEntries() {
+	return Object.entries(VARIANTS).filter((entry) => !isComment(entry[1]));
+}
+function usesIntermediateVar(suffix) {
+	const entry = VARIANTS[suffix];
+	if (!entry || isComment(entry)) return false;
+	return suffix === "" || entry.length > 1;
+}
+//#endregion
+//#region src/tw-plugin.ts
+const squircle = plugin.withOptions((options = {}) => ({ matchUtilities, theme }) => {
+	const amtVar = options.amtVar ?? options["amt-var"] ?? "--squircle-amt";
+	const prefix = options.prefix ?? "squircle";
+	const radiusValues = theme("borderRadius");
+	const amtCss = `var(${amtVar}, 2)`;
+	const cornerShape = getCornerShape(amtVar);
+	matchUtilities({ [`${prefix}-amt`]: (value) => ({
+		[amtVar]: value,
+		[SUPPORTS_RULE]: { "corner-shape": `superellipse(var(${amtVar}))` }
+	}) }, { type: "number" });
+	for (const [suffix, props] of variantEntries()) {
+		const name = suffix ? `${prefix}-${suffix}` : prefix;
+		if (usesIntermediateVar(suffix)) matchUtilities({ [name]: (value) => ({
+			...Object.fromEntries(props.map((p) => [p, value])),
+			[SUPPORTS_RULE]: {
+				"--squircle-r": correctedRadius(value, amtCss),
+				...Object.fromEntries(props.map((p) => [p, "var(--squircle-r)"])),
+				"corner-shape": cornerShape
+			}
+		}) }, {
+			type: "length",
+			values: radiusValues
+		});
+		else {
+			const prop = props[0];
+			matchUtilities({ [name]: (value) => {
+				const result = { [prop]: value };
+				result[SUPPORTS_RULE] = {
+					[prop]: correctedRadius(value, amtCss),
+					"corner-shape": cornerShape
+				};
+				return result;
+			} }, {
+				type: "length",
+				values: radiusValues
+			});
+		}
+	}
+});
+//#endregion
+export { squircle as default };
 
-const squircle: PluginWithConfig = plugin(squirclePlugin);
-export default squircle;
-```
-
+//# sourceMappingURL=tw-plugin.mjs.map```
 <!-- END:dist/tw-plugin.mjs -->
 
 ### tw-merge-cfg.js
 
 <!-- BEGIN:dist/tw-merge-cfg.mjs -->
-
-```ts
-const allRoundedGroups: string[] = [
-  "rounded",
-  "rounded-s",
-  "rounded-e",
-  "rounded-t",
-  "rounded-r",
-  "rounded-b",
-  "rounded-l",
-  "rounded-ss",
-  "rounded-se",
-  "rounded-es",
-  "rounded-ee",
-  "rounded-tl",
-  "rounded-tr",
-  "rounded-br",
-  "rounded-bl",
+```js
+//#region src/tw-merge-cfg.ts
+const allRoundedGroups = [
+	"rounded",
+	"rounded-s",
+	"rounded-e",
+	"rounded-t",
+	"rounded-r",
+	"rounded-b",
+	"rounded-l",
+	"rounded-ss",
+	"rounded-se",
+	"rounded-es",
+	"rounded-ee",
+	"rounded-tl",
+	"rounded-tr",
+	"rounded-br",
+	"rounded-bl"
 ];
+const squircleMergeConfig = { extend: {
+	classGroups: {
+		squircle: [
+			{ squircle: [() => true] },
+			{ "squircle-t": [() => true] },
+			{ "squircle-r": [() => true] },
+			{ "squircle-b": [() => true] },
+			{ "squircle-l": [() => true] },
+			{ "squircle-s": [() => true] },
+			{ "squircle-e": [() => true] },
+			{ "squircle-tl": [() => true] },
+			{ "squircle-tr": [() => true] },
+			{ "squircle-br": [() => true] },
+			{ "squircle-bl": [() => true] },
+			{ "squircle-ss": [() => true] },
+			{ "squircle-se": [() => true] },
+			{ "squircle-es": [() => true] },
+			{ "squircle-ee": [() => true] }
+		],
+		"squircle-amt": [{ "squircle-amt": [() => true] }]
+	},
+	conflictingClassGroups: {
+		squircle: [...allRoundedGroups, "squircle-amt"],
+		...Object.fromEntries(allRoundedGroups.map((g) => [g, ["squircle", "squircle-amt"]]))
+	}
+} };
+//#endregion
+export { squircleMergeConfig };
 
-export const squircleMergeConfig = {
-  extend: {
-    classGroups: {
-      squircle: [
-        { squircle: [() => true] },
-        { "squircle-t": [() => true] },
-        { "squircle-r": [() => true] },
-        { "squircle-b": [() => true] },
-        { "squircle-l": [() => true] },
-        { "squircle-s": [() => true] },
-        { "squircle-e": [() => true] },
-        { "squircle-tl": [() => true] },
-        { "squircle-tr": [() => true] },
-        { "squircle-br": [() => true] },
-        { "squircle-bl": [() => true] },
-        { "squircle-ss": [() => true] },
-        { "squircle-se": [() => true] },
-        { "squircle-es": [() => true] },
-        { "squircle-ee": [() => true] },
-      ],
-      "squircle-amt": [{ "squircle-amt": [() => true] }],
-    },
-    conflictingClassGroups: {
-      squircle: [...allRoundedGroups, "squircle-amt"],
-      ...Object.fromEntries(allRoundedGroups.map((g) => [g, ["squircle", "squircle-amt"]])),
-    },
-  },
-} as const;
-```
-
+//# sourceMappingURL=tw-merge-cfg.mjs.map```
 <!-- END:dist/tw-merge-cfg.mjs -->
 
 ## Browser Support
